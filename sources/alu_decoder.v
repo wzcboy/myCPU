@@ -45,10 +45,20 @@ module alu_decoder(
             // only R type use [funct] , [op] = 6'b000000
             `EXE_ZERO_OP: 
                 case (funct)
+                    // logic
                     `EXE_AND:   ALUControl_reg = `ALU_AND;
                     `EXE_OR:    ALUControl_reg = `ALU_OR;   
                     `EXE_XOR:   ALUControl_reg = `ALU_XOR;
                     `EXE_NOR:   ALUControl_reg = `ALU_NOR;
+
+                    // shift
+                    `EXE_SLL:   ALUControl_reg = `ALU_SLL;
+                    `EXE_SRL:   ALUControl_reg = `ALU_SRL;
+                    `EXE_SRA:   ALUControl_reg = `ALU_SRA;
+                    `EXE_SLLV:  ALUControl_reg = `ALU_SLLV;
+                    `EXE_SRLV:  ALUControl_reg = `ALU_SRLV;
+                    `EXE_SRAV:  ALUControl_reg = `ALU_SRAV;
+                    
                     default:    ALUControl_reg = `ALU_DEFAULT;
                 endcase
 

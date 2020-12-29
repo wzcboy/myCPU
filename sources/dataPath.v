@@ -28,13 +28,13 @@ module dataPath(
     //decode stage
     wire [31:0] pc_plus4D;
     wire forwardAD, forwardBD,euqalD,pcSrcD;
-    wire [4:0] rsD,rtD,rdD;
+    wire [4:0] rsD,rtD,rdD,saD;
     wire stallD, flushD;
     wire [31:0] signImmD,signImmD_sl2D;
     wire [31:0] srcaD,srca2D,srcbD,srcb2D;
     //execute stage
     wire [1:0] forwardAE,forwardBE;
-    wire [4:0] rsE,rtE,rdE;
+    wire [4:0] rsE,rtE,rdE,saE;
     wire flushE;
     wire [4:0] writeRegE;
     wire [31:0] signImmE;
@@ -193,6 +193,14 @@ module dataPath(
     assign rsD    = instrD[25:21];
     assign rtD    = instrD[20:16];
     assign rdD    = instrD[15:11];
+    assign saD     = instrD[10:6];
+    
+    //use for debug
+    wire [39:0] asciiD;
+    instdec instdec1(
+        .instr(instrD),
+        .ascii(asciiD)
+    );
 
     //execute stage
     floprc #(11) regE(clk,rst,flushE,{memToRegD,memWriteD,aluSrcD,regDstD,regWriteD,ALUControlD},
@@ -203,6 +211,7 @@ module dataPath(
 	floprc #(5) r4E(clk,rst,flushE,rsD,rsE);
 	floprc #(5) r5E(clk,rst,flushE,rtD,rtE);
 	floprc #(5) r6E(clk,rst,flushE,rdD,rdE);
+    floprc #(5) r7E(clk,rst,flushE,saD,saE);
 
     mux3to1 #(32) mux_alu_src1(srcaE,resultW,ALUOutM,forwardAE,srca2E);  //选择ALU的第一个数据源
     mux3to1 #(32) mux_alu_src2(srcbE,resultW,ALUOutM,forwardBE,srcb2E);  //选择ALU的第二个数据源
@@ -210,7 +219,8 @@ module dataPath(
 
     ALU alu(
         .A(srca2E),
-        .B(srcb3E),   
+        .B(srcb3E),
+        .sa(saE),
         .f(ALUControlE),      //ALUControl
         .res(ALUOutE),
         .overFlow(overFlow),

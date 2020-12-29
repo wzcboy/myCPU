@@ -23,6 +23,7 @@
 module ALU(
     input [31:0] A,
     input [31:0] B,
+    input [4:0] sa,     // [shift] in instr
     input [4:0] f,
     output [31:0] res,
     output overFlow,zero
@@ -37,6 +38,13 @@ module ALU(
     wire alu_xor;
     wire alu_nor;
     wire alu_lui;
+    // shift instr
+    wire alu_sll;
+    wire alu_sllv;
+    wire alu_srl;
+    wire alu_sra;
+    wire alu_srlv;
+    wire alu_srav;
 
     // the result of the operation
     // logic instr
@@ -45,30 +53,61 @@ module ALU(
     wire [31:0] xor_result;
     wire [31:0] nor_result;
     wire [31:0] lui_result;
+    // shift instr
+    wire [31:0] sll_result;
+    wire [31:0] sllv_result;
+    wire [31:0] srl_result;
+    wire [31:0] sra_result;
+    wire [31:0] srlv_result;
+    wire [31:0] srav_result;
 
     // assignment
     //logic instr
-    assign alu_and = !(f ^ `ALU_AND);
-    assign alu_or  = !(f ^ `ALU_OR);
-    assign alu_xor = !(f ^ `ALU_XOR);
-    assign alu_nor = !(f ^ `ALU_NOR);
-    assign alu_lui = !(f ^ `ALU_LUI);
+    assign alu_and  = !(f ^ `ALU_AND);
+    assign alu_or   = !(f ^ `ALU_OR);
+    assign alu_xor  = !(f ^ `ALU_XOR);
+    assign alu_nor  = !(f ^ `ALU_NOR);
+    assign alu_lui  = !(f ^ `ALU_LUI);
+    // shift instr
+    assign alu_sll  = !(f ^ `ALU_SLL);
+    assign alu_sllv = !(f ^ `ALU_SLLV);
+    assign alu_srl  = !(f ^ `ALU_SRL);
+    assign alu_sra  = !(f ^ `ALU_SRA);
+    assign alu_srlv = !(f ^ `ALU_SRLV);
+    assign alu_srav = !(f ^ `ALU_SRAV);
+
 
     // calculate
     // logic instr
-    assign and_result = A & B;
-    assign or_result  = A | B;
-    assign xor_result = A ^ B;
-    assign nor_result = ~ or_result;
-    assign lui_result = {B[15:0],  16'b0};
-
+    assign and_result  = A & B;
+    assign or_result   = A | B;
+    assign xor_result  = A ^ B;
+    assign nor_result  = ~ or_result;
+    assign lui_result  = {B[15:0], 16'b0};
+    // shift instr
+    wire [4:0] s;
+    wire [63:0] sr64_result;
+    assign s = (alu_sll | alu_srl | alu_sra) ? sa : A[4:0];
+    assign sr64_result = {{32{B[31]}},B[31:0]} >> s; // sra srav
+    assign sll_result  = B << s;
+    assign sllv_result = B << s;
+    assign srl_result  = B >> s;
+    assign srlv_result = B >> s;
+    assign sra_result  = sr64_result[31:0];
+    assign srav_result = sr64_result[31:0];
 
     // get the final result
-    assign alu_res_general = ({32{alu_and}} & and_result) |
-                             ({32{alu_or}}  & or_result)  |
-                             ({32{alu_xor}} & xor_result) |
-                             ({32{alu_nor}} & nor_result) |
-                             ({32{alu_lui}} & lui_result);
+    assign alu_res_general = ({32{alu_and}}  & and_result)  |
+                             ({32{alu_or}}   & or_result)   |
+                             ({32{alu_xor}}  & xor_result)  |
+                             ({32{alu_nor}}  & nor_result)  |
+                             ({32{alu_lui}}  & lui_result)  |
+                             ({32{alu_sll}}  & sll_result)  |
+                             ({32{alu_sllv}} & sllv_result) |
+                             ({32{alu_srl}}  & srl_result)  |
+                             ({32{alu_sra}}  & sra_result)  |
+                             ({32{alu_srlv}} & srlv_result) |
+                             ({32{alu_srav}} & srav_result);
 
 
     assign res = alu_res_general;

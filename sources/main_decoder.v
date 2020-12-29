@@ -49,7 +49,7 @@ module main_decoder(
             // [op] = 6'b000000
             `EXE_ZERO_OP:
                 case (funct)
-                    `EXE_AND,`EXE_OR,`EXE_XOR,`EXE_NOR: begin
+                    `EXE_AND,`EXE_OR,`EXE_XOR,`EXE_NOR, `EXE_SLL, `EXE_SRL, `EXE_SRA, `EXE_SLLV, `EXE_SRLV, `EXE_SRAV: begin
                         sigs = 9'b00_00001_01;
                     end
                     default: begin
