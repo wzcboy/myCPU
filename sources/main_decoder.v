@@ -18,50 +18,56 @@
 // Additional Comments:
 // 
 //////////////////////////////////////////////////////////////////////////////////
-
+`include "defines.vh"
 
 module main_decoder(
-    input [5:0] op,
-    output jump, branch, aluSrc,memRead,memWrite,memToReg,regWrite,regDst,
-    output [1:0] ALUOp
-    );
+    input [31:0] instrD,
+    output jump, branch, aluSrc,memRead,memWrite,memToReg,regWrite,
+    output [1:0] regDst,  // 00-> rt, 01-> rd, 10-> $ra
 
-    reg [1:0] ALUOp_reg;
-    reg [7:0] sigs;
+    output sign_ext
+    );
+    // declare
+    wire [5:0] op;
+	wire [4:0] rs,rt;
+	wire [5:0] funct;
+
+	assign op    = instrD[31:26];
+	assign rs    = instrD[25:21];
+	assign rt    = instrD[20:16];
+	assign funct = instrD[5:0];
+
+    reg [8:0] sigs;
     
-    assign ALUOp = ALUOp_reg;
     assign {jump,branch, aluSrc,memRead,memWrite,memToReg,regWrite,regDst} = sigs;
 
-    always@(op) begin
-        casex(op)
-            6'b000000: begin              //RÐÍ
-                ALUOp_reg = 2'b10;
-                sigs = 8'b0000_0011;
+    // get the control siganl
+    assign sign_ext = |(op[5:2] ^ 4'b0011);		// andi, xori, lui, ori->zero_extend, other->sign_extend
+
+    always@(instrD) begin
+        case (op)
+            // [op] = 6'b000000
+            `EXE_ZERO_OP:
+                case (funct)
+                    `EXE_AND,`EXE_OR,`EXE_XOR,`EXE_NOR: begin
+                        sigs = 9'b00_00001_01;
+                    end
+                    default: begin
+                        sigs = 9'b00_00000_00;
+                    end
+                endcase
+            
+            // I type
+            // logic instr
+            `EXE_ANDI_OP, `EXE_LUI_OP, `EXE_XORI_OP, `EXE_ORI_OP: begin
+                sigs = 9'b00_10001_00;
             end
-            6'b100011: begin              //lw
-                ALUOp_reg = 2'b00;
-                sigs = 8'b0011_0110;
-            end
-            6'b101011: begin              //sw
-                ALUOp_reg = 2'b00;
-                sigs = 8'b0010_1?0?;
-            end
-            6'b000100: begin              //beq
-                ALUOp_reg = 2'b01;
-                sigs = 8'b0100_0?0?;
-            end
-            6'b001000: begin              //addi
-                ALUOp_reg = 2'b00;
-                sigs = 8'b0010_0010;
-            end
-            6'b000010: begin              //jump
-                ALUOp_reg = 2'b??;
-                sigs = 8'b10??_0000;
-            end
+            
+
             default: begin
-                ALUOp_reg = 2'b00;
-                sigs = 8'b0000_0000;
+                sigs = 9'b00_00000_00;
             end
         endcase
     end
+
 endmodule

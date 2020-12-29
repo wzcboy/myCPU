@@ -27,14 +27,15 @@ module mips(
     output [31:0] ALUOutM,writeDataM,
     output memWriteM,memRead
     );
-    wire [5:0] opD,functD;
-    wire [2:0] ALUControl;
-    wire  jump, branch, aluSrc,memWrite,memToReg,regWrite,regDst;
-
-    controller controller(
-        .opD(opD),
-        .functD(functD),
-        .ALUControl(ALUControl),
+    wire [31:0] instrD;
+    wire [4:0] ALUControl;
+    wire jump, branch, aluSrc,memWrite,memToReg,regWrite;
+    wire [1:0] regDst;
+    
+    wire sign_ext;
+    
+    main_decoder main_decoder(
+        .instrD(instrD),
         .jump(jump), 
         .branch(branch), 
         .aluSrc(aluSrc),
@@ -42,7 +43,13 @@ module mips(
         .memWrite(memWrite),
         .memToReg(memToReg),
         .regWrite(regWrite),
-        .regDst(regDst)
+        .regDst(regDst),
+        .sign_ext(sign_ext)
+    );
+
+    alu_decoder alu_decoder(
+        .instrD(instrD),
+        .ALUControl(ALUControl)
     );
 
     dataPath dataPath(
@@ -60,8 +67,8 @@ module mips(
         .branchD(branch),
         .jumpD(jump),
         .ALUControlD(ALUControl),
-        .opD(opD),
-        .functD(functD),
+        .instrD(instrD),
+        .sign_extD(sign_ext),
         //execute stage
     
         //mem stage

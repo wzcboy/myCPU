@@ -40,7 +40,7 @@ module top(
         .memRead(data_ram_ena)
     );
 
-    //指令内存
+    // instr memory
     instr_ram instr_ram (
         .clka(~clk),    // input wire clka
         .ena(1'b1),      // input wire ena
@@ -49,7 +49,7 @@ module top(
         .dina(32'b0),    // input wire [31 : 0] dina
         .douta(instr)  // output wire [31 : 0] douta
     );
-    //数据内存
+    // data memory
     data_ram data_ram (
         .clka(~clk),    // input wire clka
         .ena(1'b1),      // input wire ena

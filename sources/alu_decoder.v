@@ -18,22 +18,49 @@
 // Additional Comments:
 // 
 //////////////////////////////////////////////////////////////////////////////////
-
+`include "defines.vh"
+`include "aludefines.vh"
 
 module alu_decoder(
-    input [5:0] funct,
-    input [1:0] ALUOp,
-    output [2:0] ALUControl
+    input [31:0] instrD,
+    output [4:0] ALUControl
 );
+    // declare
+    wire [5:0] op;
+	wire [4:0] rs,rt;
+	wire [5:0] funct;
 
-    assign ALUControl = (ALUOp == 2'b00)? 3'b010:    // lw sw
-                        (ALUOp == 2'b01)? 3'b110:    //beq
-                        (ALUOp == 2'b10)?
-                                        (funct == 6'b100000)?3'b010:   //add
-                                        (funct == 6'b100010)?3'b110:   //sub
-                                        (funct == 6'b100100)?3'b000:   //and
-                                        (funct == 6'b100101)?3'b001:   //or
-                                        (funct == 6'b101010)?3'b111:   //slt
-                                        3'b000 : 3'b000;
+	assign op    = instrD[31:26];
+	assign rs    = instrD[25:21];
+	assign rt    = instrD[20:16];
+	assign funct = instrD[5:0];
+
+    reg [4:0] ALUControl_reg;
+
+    assign ALUControl = ALUControl_reg;
+
+    always@(instrD) begin
+        case (op)
+            // R type
+            // only R type use [funct] , [op] = 6'b000000
+            `EXE_ZERO_OP: 
+                case (funct)
+                    `EXE_AND:   ALUControl_reg = `ALU_AND;
+                    `EXE_OR:    ALUControl_reg = `ALU_OR;   
+                    `EXE_XOR:   ALUControl_reg = `ALU_XOR;
+                    `EXE_NOR:   ALUControl_reg = `ALU_NOR;
+                    default:    ALUControl_reg = `ALU_DEFAULT;
+                endcase
+
+            // I type
+            // logic instr
+            `EXE_ANDI_OP:   ALUControl_reg = `ALU_AND;
+            `EXE_XORI_OP:   ALUControl_reg = `ALU_XOR;
+            `EXE_LUI_OP:    ALUControl_reg = `ALU_LUI;
+            `EXE_ORI_OP:    ALUControl_reg = `ALU_OR;
+
+            default:        ALUControl_reg = `ALU_DEFAULT;
+        endcase
+    end
                                                                           
 endmodule

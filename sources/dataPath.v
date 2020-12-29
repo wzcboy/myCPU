@@ -6,9 +6,11 @@ module dataPath(
     input [31:0] instrF,
     output [31:0] pcF,
     //decode stage
-    input regWriteD, memToRegD,memWriteD,aluSrcD,regDstD,branchD,jumpD,
-    input [2:0] ALUControlD,
-    output [5:0] opD,functD,
+    input regWriteD, memToRegD,memWriteD,aluSrcD,branchD,jumpD,
+    input [1:0] regDstD,
+    input [4:0] ALUControlD,
+    input sign_extD,
+    output [31:0] instrD,
     //execute stage
     
     //mem stage
@@ -24,7 +26,7 @@ module dataPath(
     //FD
     wire [31:0] pc_next_FD, pc_nextbrFD, pc_plus4F,pc_branchD;
     //decode stage
-    wire [31:0] pc_plus4D,instrD;
+    wire [31:0] pc_plus4D;
     wire forwardAD, forwardBD,euqalD,pcSrcD;
     wire [4:0] rsD,rtD,rdD;
     wire stallD, flushD;
@@ -37,12 +39,13 @@ module dataPath(
     wire [4:0] writeRegE;
     wire [31:0] signImmE;
     wire [31:0] srcaE,srca2E,srcbE,srcb2E,srcb3E;
-    wire memToRegE,memWriteE,aluSrcE,regDstE,regWriteE;
-    wire [2:0] ALUControlE;
+    wire memToRegE,memWriteE,aluSrcE,regWriteE;
+    wire [1:0] regDstE;
+    wire [4:0] ALUControlE;
     wire [31:0] ALUOutE;
     //mem stage
     wire [4:0] writeRegM;
-    wire memToRegM,memWriteM,regWriteM;
+    wire memToRegM,regWriteM;
     //write back stage
     wire [4:0] writeRegW;
     wire [31:0] ALUoutW,readDataW,resultW;
@@ -144,8 +147,10 @@ module dataPath(
         .q(instrD)
     );
     // 16 -> 32
+    // andi, xori, lui, ori->zero_extend, other->sign_extend
     signext signExtend(
         .signal(instrD[15:0]),
+        .sign_extend(sign_extD),
         .y(signImmD)
     );
 
@@ -183,14 +188,14 @@ module dataPath(
         .y(euqalD)
     );
     
-    assign opD = instrD[31:26];
+    assign opD    = instrD[31:26];
     assign functD = instrD[5:0];
-    assign rsD = instrD[25:21];
-    assign rtD = instrD[20:16];
-    assign rdD = instrD[15:11];
+    assign rsD    = instrD[25:21];
+    assign rtD    = instrD[20:16];
+    assign rdD    = instrD[15:11];
 
     //execute stage
-    floprc #(8) regE(clk,rst,flushE,{memToRegD,memWriteD,aluSrcD,regDstD,regWriteD,ALUControlD},
+    floprc #(11) regE(clk,rst,flushE,{memToRegD,memWriteD,aluSrcD,regDstD,regWriteD,ALUControlD},
     {memToRegE,memWriteE,aluSrcE,regDstE,regWriteE,ALUControlE});
     floprc #(32) r1E(clk,rst,flushE,srcaD,srcaE);  //从寄存器读出来的数据A
     floprc #(32) r2E(clk,rst,flushE,srcbD,srcbE);  //从寄存器读出来的数据B
@@ -202,26 +207,27 @@ module dataPath(
     mux3to1 #(32) mux_alu_src1(srcaE,resultW,ALUOutM,forwardAE,srca2E);  //选择ALU的第一个数据源
     mux3to1 #(32) mux_alu_src2(srcbE,resultW,ALUOutM,forwardBE,srcb2E);  //选择ALU的第二个数据源
     mux2to1 #(32) mux_alu_src3(signImmE,srcb2E,aluSrcE,srcb3E);
+
     ALU alu(
         .A(srca2E),
         .B(srcb3E),   
         .f(ALUControlE),      //ALUControl
-        .s(ALUOutE),
+        .res(ALUOutE),
         .overFlow(overFlow),
         .zero(zero)
     );
 
-    mux2to1 #(5) writeReg_src(rdE,rtE,regDstE,writeRegE); 
+    mux3to1 #(5) writeReg_src(rtE,rdE,rtE,regDstE,writeRegE); // **有待更正第三个参数**
 
     //mem stage
-    flopr #(8) regM(clk,rst,{memToRegE,memWriteE,regWriteE},
+    flopr #(3) regM(clk,rst,{memToRegE,memWriteE,regWriteE},
     {memToRegM,memWriteM,regWriteM});
     flopr #(32) r1M(clk,rst,srcb2E,writeDataM);  //连接到数据存储器的写数据端口
     flopr #(32) r2M(clk,rst,ALUOutE,ALUOutM);   //连接到数据存储器的写数据地址端口
     flopr #(5) r3M(clk,rst,writeRegE,writeRegM); 
   
     //write back stage
-    flopr #(8) regW(clk,rst,{memToRegM,regWriteM},
+    flopr #(2) regW(clk,rst,{memToRegM,regWriteM},
     {memToRegW,regWriteW});
     flopr #(32) r1W(clk,rst,readDataM,readDataW);
     flopr #(32) r2W(clk,rst,ALUOutM,ALUoutW);
