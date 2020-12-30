@@ -10,6 +10,11 @@
 `define EXE_LUI_OP		6'b001111
 `define EXE_ORI_OP		6'b001101
 
+// arithmetic instr
+`define EXE_ADDI_OP     6'b001000
+`define EXE_ADDIU_OP    6'b001001
+`define EXE_SLTI_OP     6'b001010
+`define EXE_SLTIU_OP    6'b001011   
 
 //-----------------instr funct---------------------
 // logic instr
@@ -31,3 +36,17 @@
 `define EXE_MTHI  		6'b010001
 `define EXE_MFLO  		6'b010010
 `define EXE_MTLO  		6'b010011
+
+// arithmetic instr
+`define EXE_ADD         6'b100000
+`define EXE_ADDU        6'b100001
+`define EXE_SUB         6'b100010
+`define EXE_SUBU        6'b100011
+`define EXE_SLT         6'b101010
+`define EXE_SLTU        6'b101011
+`define EXE_MULT        6'b011000
+`define EXE_MULTU       6'b011001
+`define EXE_DIV         6'b011010
+`define EXE_DIVU        6'b011011
+
+

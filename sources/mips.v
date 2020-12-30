@@ -33,10 +33,12 @@ module mips(
     wire [1:0] regDst;
     
     wire sign_ext;
-    wire hilo_we, hilo_to_reg;
-    
-    main_decoder main_decoder(
+    wire hilo_we;
+    wire isDiv;
+
+    controller controller(
         .instrD(instrD),
+        .ALUControl(ALUControl),
         .jump(jump), 
         .branch(branch), 
         .aluSrc(aluSrc),
@@ -46,12 +48,8 @@ module mips(
         .regWrite(regWrite),
         .regDst(regDst),
         .sign_ext(sign_ext),
-        .hilo_we(hilo_we)
-    );
-
-    alu_decoder alu_decoder(
-        .instrD(instrD),
-        .ALUControl(ALUControl)
+        .hilo_we(hilo_we),
+        .isDiv(isDiv)
     );
 
     dataPath dataPath(
@@ -71,7 +69,8 @@ module mips(
         .ALUControlD(ALUControl),
         .instrD(instrD),
         .sign_extD(sign_ext),
-        .hilo_weD(hilo_we), 
+        .hilo_weD(hilo_we),
+        .isDivD(isDiv),
         //execute stage
     
         //mem stage

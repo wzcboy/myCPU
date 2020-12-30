@@ -11,6 +11,7 @@ module dataPath(
     input [5:0] ALUControlD,
     input sign_extD,
     input hilo_weD,
+    input isDivD,
     output [31:0] instrD,
     //execute stage
     
@@ -36,7 +37,7 @@ module dataPath(
     //execute stage
     wire [1:0] forwardAE,forwardBE, forwardHiloE;
     wire [4:0] rsE,rtE,rdE,saE;
-    wire flushE;
+    wire stallE, flushE;
     wire [4:0] writeRegE;
     wire [31:0] signImmE;
     wire [31:0] srcaE,srca2E,srcbE,srcb2E,srcb3E;
@@ -46,6 +47,8 @@ module dataPath(
     wire [63:0] ALUOutE;
     wire [63:0] hilo_for_aluE;
     wire hilo_weE;
+    wire [63:0] alu_resultE, div_resultE;
+    wire stall_divE, isDivE;
     //mem stage
     wire [4:0] writeRegM;
     wire memToRegM,regWriteM;
@@ -73,7 +76,6 @@ module dataPath(
     .forwardAD(forwardAD), 
     .forwardBD(forwardBD),
     .stallD(stallD),
-
     //excute stage
     .rsE(rsE), 
     .rtE(rtE),
@@ -84,6 +86,8 @@ module dataPath(
     .forwardBE(forwardBE),
     .flushE(flushE),
     .forwardHiloE(forwardHiloE),
+    .stall_divE(stall_divE),
+    .stallE(stallE),
     //mem stage
     .writeRegM(writeRegM),
     .regWriteM(regWriteM),
@@ -212,16 +216,17 @@ module dataPath(
     );
 
     //execute stage
-    floprc #(12) regE(clk,rst,flushE,{memToRegD,memWriteD,aluSrcD,regDstD,regWriteD,ALUControlD},
+    flopenrc #(12) regE(clk,rst,~stallE,flushE,{memToRegD,memWriteD,aluSrcD,regDstD,regWriteD,ALUControlD},
     {memToRegE,memWriteE,aluSrcE,regDstE,regWriteE,ALUControlE});
-    floprc #(32) r1E(clk,rst,flushE,srcaD,srcaE);  //从寄存器读出来的数据A
-    floprc #(32) r2E(clk,rst,flushE,srcbD,srcbE);  //从寄存器读出来的数据B
-    floprc #(32) r3E(clk,rst,flushE,signImmD,signImmE);  //从decode阶段到execute阶段扩展后的立即数
-	floprc #(5) r4E(clk,rst,flushE,rsD,rsE);
-	floprc #(5) r5E(clk,rst,flushE,rtD,rtE);
-	floprc #(5) r6E(clk,rst,flushE,rdD,rdE);
-    floprc #(5) r7E(clk,rst,flushE,saD,saE);
-    floprc #(1) r8E(clk,rst,flushE,hilo_weD,hilo_weE);
+    flopenrc #(32) r1E(clk,rst,~stallE,flushE,srcaD,srcaE);  //从寄存器读出来的数据A
+    flopenrc #(32) r2E(clk,rst,~stallE,flushE,srcbD,srcbE);  //从寄存器读出来的数据B
+    flopenrc #(32) r3E(clk,rst,~stallE,flushE,signImmD,signImmE);  //从decode阶段到execute阶段扩展后的立即数
+	flopenrc #(5) r4E(clk,rst,~stallE,flushE,rsD,rsE);
+	flopenrc #(5) r5E(clk,rst,~stallE,flushE,rtD,rtE);
+	flopenrc #(5) r6E(clk,rst,~stallE,flushE,rdD,rdE);
+    flopenrc #(5) r7E(clk,rst,~stallE,flushE,saD,saE);
+    flopenrc #(1) r8E(clk,rst,~stallE,flushE,hilo_weD,hilo_weE);
+    flopenrc #(1) r9E(clk,rst,~stallE,flushE,isDivD,isDivE);
 
     mux3to1 #(32) mux_alu_src1(srcaE,resultW,ALUOutM,forwardAE,srca2E);  //选择ALU的第一个数据源
     mux3to1 #(32) mux_alu_src2(srcbE,resultW,ALUOutM,forwardBE,srcb2E);  //选择ALU的第二个数据源
@@ -235,12 +240,24 @@ module dataPath(
         .sa(saE),
         .f(ALUControlE),        // ALUControl
         .hilo(hilo_for_aluE),  // the output of hilo reg
-        .res(ALUOutE),
+        .res(alu_resultE),
         .overFlow(overFlow),
         .zero(zero)
     );
+    
+    divider_primary divider(
+        .clk(clk), 
+        .rst(rst),
+        .ALUControl_i(ALUControlE),
+	    .opdata1_i(srca2E),
+	    .opdata2_i(srcb3E),
+	    .annul_i(1'b0),        // no half-stopping
+	    .result_o(div_resultE),
+        .stall_div(stall_divE)
+    );
 
-    mux3to1 #(5) writeReg_src(rtE,rdE,rtE,regDstE,writeRegE); // **有待更正第三个参数**
+    mux3to1 #(5) writeReg_src(rtE,rdE,rtE,regDstE,writeRegE);           // **有待更正第三个参数**
+    mux2to1 #(64) mux_aluout(div_resultE,alu_resultE,isDivE,ALUOutE);  // decide the final alu resut
 
     //mem stage
     flopr #(3) regM(clk,rst,{memToRegE,memWriteE,regWriteE},{memToRegM,memWriteM,regWriteM});

@@ -35,8 +35,9 @@ module hazard(
     input [4:0] writeRegE,
     input regWriteE,
     input memToRegE,
+    input stall_divE,
     output [1:0] forwardAE, forwardBE, forwardHiloE,
-    output flushE,
+    output flushE, stallE,
 
     //mem stage
     input [4:0] writeRegM,
@@ -76,8 +77,9 @@ module hazard(
                         | (branchD && memToRegM && (writeRegM==rsD || writeRegM==rtD));
     
     // control output
-    assign stallD = (lwStall | branchStall);
-    assign stallF = (lwStall | branchStall);
+    assign stallD = (lwStall | branchStall) | stall_divE;
+    assign stallF = stallD;
+    assign stallE = stall_divE;
     assign flushE = (lwStall | branchStall);
 endmodule
 

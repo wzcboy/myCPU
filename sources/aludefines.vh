@@ -20,19 +20,20 @@
 `define ALU_MFHI            6'b10_0000
 `define ALU_MFLO            6'b10_0001
 
+//arithmetic instr
 `define ALU_ADD             6'b00_0010
-`define ALU_SUB             6'b00_0011
-`define ALU_SLT             6'b00_0100
-
-`define ALU_SLTU            6'b00_1000
-`define ALU_UNSIGNED_MULT   6'b00_1001
-
-`define ALU_UNSIGNED_DIV    6'b00_1100
-`define ALU_SIGNED_MULT     6'b00_1101
-`define ALU_SIGNED_DIV      6'b00_1110
-
 `define ALU_ADDU            6'b01_0000
+`define ALU_SUB             6'b00_0011
 `define ALU_SUBU            6'b01_0001
+`define ALU_SLT             6'b00_0100
+`define ALU_SLTU            6'b00_1000
+`define ALU_MULT            6'b00_1101
+`define ALU_MULTU           6'b00_1001
+`define ALU_DIV             6'b00_1110
+`define ALU_DIVU            6'b00_1100
+
+
+
 `define ALU_LEZ             6'b01_0010
 `define ALU_GTZ             6'b01_0011
 `define ALU_GEZ             6'b01_0100
