@@ -35,17 +35,19 @@ module hazard(
     input [4:0] writeRegE,
     input regWriteE,
     input memToRegE,
-    output [1:0] forwardAE, forwardBE,
+    output [1:0] forwardAE, forwardBE, forwardHiloE,
     output flushE,
 
     //mem stage
     input [4:0] writeRegM,
     input regWriteM,
     input memToRegM,
+    input hilo_weM,
 
     //write back stage
     input [4:0] writeRegW,
-    input regWriteW
+    input regWriteW,
+    input hilo_weW
     );
     
     //数据冒险 R型指令，前推
@@ -56,6 +58,9 @@ module hazard(
     assign forwardBE = ((rtE!=0) && (rtE==writeRegM) && regWriteM) ? 2'b10 : 
                         ((rtE!=0) && (rtE==writeRegW) && regWriteW) ? 2'b01:
                         2'b00;
+    
+    // hilo寄存器导致的数据冒险
+    assign forwardHiloE = hilo_weM ? 2'b10 : (hilo_weW ? 2'b01 : 2'b00);
 
     //数据冒险 load指令的，前推并且阻塞一周期
     wire lwStall;

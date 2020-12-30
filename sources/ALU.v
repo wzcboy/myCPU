@@ -24,8 +24,9 @@ module ALU(
     input [31:0] A,
     input [31:0] B,
     input [4:0] sa,     // [shift] in instr
-    input [4:0] f,
-    output [31:0] res,
+    input [5:0] f,
+    input [63:0] hilo,
+    output [63:0] res,
     output overFlow,zero
 );
     // result signal
@@ -45,6 +46,11 @@ module ALU(
     wire alu_sra;
     wire alu_srlv;
     wire alu_srav;
+    // move instr
+    wire alu_mfhi;
+    wire alu_mflo;
+    wire alu_mthi;
+    wire alu_mtlo;
 
     // the result of the operation
     // logic instr
@@ -60,6 +66,11 @@ module ALU(
     wire [31:0] sra_result;
     wire [31:0] srlv_result;
     wire [31:0] srav_result;
+    // move instr
+    wire [63:0] mfhi_result;
+    wire [63:0] mflo_result;
+    wire [63:0] mthi_result;
+    wire [63:0] mtlo_result;
 
     // assignment
     //logic instr
@@ -75,6 +86,11 @@ module ALU(
     assign alu_sra  = !(f ^ `ALU_SRA);
     assign alu_srlv = !(f ^ `ALU_SRLV);
     assign alu_srav = !(f ^ `ALU_SRAV);
+    // move instr
+    assign alu_mfhi = !(f ^ `ALU_MFHI);
+    assign alu_mflo = !(f ^ `ALU_MFLO);
+    assign alu_mthi = !(f ^ `ALU_MTHI);
+    assign alu_mtlo = !(f ^ `ALU_MTLO);
 
 
     // calculate
@@ -95,6 +111,11 @@ module ALU(
     assign srlv_result = B >> s;
     assign sra_result  = sr64_result[31:0];
     assign srav_result = sr64_result[31:0];
+    // move instr
+    assign mfhi_result = {32'b0, hilo[63:32]};
+    assign mflo_result = {32'b0, hilo[31:0]};
+    assign mthi_result = {A, hilo[31:0]};
+    assign mtlo_result = {hilo[63:32], A};
 
     // get the final result
     assign alu_res_general = ({32{alu_and}}  & and_result)  |
@@ -110,7 +131,11 @@ module ALU(
                              ({32{alu_srav}} & srav_result);
 
 
-    assign res = alu_res_general;
+    assign res = ({64{alu_mfhi}} & mfhi_result)
+               | ({64{alu_mflo}} & mflo_result)
+               | ({64{alu_mthi}} & mthi_result)
+               | ({64{alu_mtlo}} & mtlo_result)
+               | ({64{!alu_mfhi & ! alu_mflo & !alu_mthi & !alu_mtlo}} & {32'b0, alu_res_general});
     
     assign overFlow = 1'b0;
     assign zero = (res==0);

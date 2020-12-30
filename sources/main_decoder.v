@@ -25,7 +25,8 @@ module main_decoder(
     output jump, branch, aluSrc,memRead,memWrite,memToReg,regWrite,
     output [1:0] regDst,  // 00-> rt, 01-> rd, 10-> $ra
 
-    output sign_ext
+    output sign_ext,
+    output hilo_we
     );
     // declare
     wire [5:0] op;
@@ -43,14 +44,21 @@ module main_decoder(
 
     // get the control siganl
     assign sign_ext = |(op[5:2] ^ 4'b0011);		// andi, xori, lui, ori->zero_extend, other->sign_extend
+    assign hilo_we = ~(| ( op ^ `EXE_ZERO_OP )) 
+					   & ( ~(|(funct[5:2] ^ 4'b0110)) 			    // div divu mult multu  	
+					   | ( ~(|(funct[5:2] ^ 4'b0100)) & funct[0])); //mthi mtlo
 
     always@(instrD) begin
         case (op)
             // [op] = 6'b000000
             `EXE_ZERO_OP:
                 case (funct)
-                    `EXE_AND,`EXE_OR,`EXE_XOR,`EXE_NOR, `EXE_SLL, `EXE_SRL, `EXE_SRA, `EXE_SLLV, `EXE_SRLV, `EXE_SRAV: begin
+                    `EXE_AND,`EXE_OR,`EXE_XOR,`EXE_NOR, `EXE_SLL, `EXE_SRL, `EXE_SRA, `EXE_SLLV, `EXE_SRLV, `EXE_SRAV,
+                    `EXE_MFHI, `EXE_MFLO: begin
                         sigs = 9'b00_00001_01;
+                    end
+                    `EXE_MTHI, `EXE_MTLO: begin
+                        sigs = 9'b00_00000_00;
                     end
                     default: begin
                         sigs = 9'b00_00000_00;

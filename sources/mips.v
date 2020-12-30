@@ -28,11 +28,12 @@ module mips(
     output memWriteM,memRead
     );
     wire [31:0] instrD;
-    wire [4:0] ALUControl;
+    wire [5:0] ALUControl;
     wire jump, branch, aluSrc,memWrite,memToReg,regWrite;
     wire [1:0] regDst;
     
     wire sign_ext;
+    wire hilo_we, hilo_to_reg;
     
     main_decoder main_decoder(
         .instrD(instrD),
@@ -44,7 +45,8 @@ module mips(
         .memToReg(memToReg),
         .regWrite(regWrite),
         .regDst(regDst),
-        .sign_ext(sign_ext)
+        .sign_ext(sign_ext),
+        .hilo_we(hilo_we)
     );
 
     alu_decoder alu_decoder(
@@ -69,6 +71,7 @@ module mips(
         .ALUControlD(ALUControl),
         .instrD(instrD),
         .sign_extD(sign_ext),
+        .hilo_weD(hilo_we), 
         //execute stage
     
         //mem stage

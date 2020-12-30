@@ -23,7 +23,7 @@
 
 module alu_decoder(
     input [31:0] instrD,
-    output [4:0] ALUControl
+    output [5:0] ALUControl
 );
     // declare
     wire [5:0] op;
@@ -35,7 +35,7 @@ module alu_decoder(
 	assign rt    = instrD[20:16];
 	assign funct = instrD[5:0];
 
-    reg [4:0] ALUControl_reg;
+    reg [5:0] ALUControl_reg;
 
     assign ALUControl = ALUControl_reg;
 
@@ -50,7 +50,6 @@ module alu_decoder(
                     `EXE_OR:    ALUControl_reg = `ALU_OR;   
                     `EXE_XOR:   ALUControl_reg = `ALU_XOR;
                     `EXE_NOR:   ALUControl_reg = `ALU_NOR;
-
                     // shift
                     `EXE_SLL:   ALUControl_reg = `ALU_SLL;
                     `EXE_SRL:   ALUControl_reg = `ALU_SRL;
@@ -58,6 +57,11 @@ module alu_decoder(
                     `EXE_SLLV:  ALUControl_reg = `ALU_SLLV;
                     `EXE_SRLV:  ALUControl_reg = `ALU_SRLV;
                     `EXE_SRAV:  ALUControl_reg = `ALU_SRAV;
+                    // move
+                    `EXE_MFHI:  ALUControl_reg = `ALU_MFHI;
+                    `EXE_MFLO:  ALUControl_reg = `ALU_MFLO;
+                    `EXE_MTHI:  ALUControl_reg = `ALU_MTHI;
+                    `EXE_MTLO:  ALUControl_reg = `ALU_MTLO;
                     
                     default:    ALUControl_reg = `ALU_DEFAULT;
                 endcase

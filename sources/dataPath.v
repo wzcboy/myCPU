@@ -8,8 +8,9 @@ module dataPath(
     //decode stage
     input regWriteD, memToRegD,memWriteD,aluSrcD,branchD,jumpD,
     input [1:0] regDstD,
-    input [4:0] ALUControlD,
+    input [5:0] ALUControlD,
     input sign_extD,
+    input hilo_weD,
     output [31:0] instrD,
     //execute stage
     
@@ -33,7 +34,7 @@ module dataPath(
     wire [31:0] signImmD,signImmD_sl2D;
     wire [31:0] srcaD,srca2D,srcbD,srcb2D;
     //execute stage
-    wire [1:0] forwardAE,forwardBE;
+    wire [1:0] forwardAE,forwardBE, forwardHiloE;
     wire [4:0] rsE,rtE,rdE,saE;
     wire flushE;
     wire [4:0] writeRegE;
@@ -41,15 +42,21 @@ module dataPath(
     wire [31:0] srcaE,srca2E,srcbE,srcb2E,srcb3E;
     wire memToRegE,memWriteE,aluSrcE,regWriteE;
     wire [1:0] regDstE;
-    wire [4:0] ALUControlE;
-    wire [31:0] ALUOutE;
+    wire [5:0] ALUControlE;
+    wire [63:0] ALUOutE;
+    wire [63:0] hilo_for_aluE;
+    wire hilo_weE;
     //mem stage
     wire [4:0] writeRegM;
     wire memToRegM,regWriteM;
+    wire hilo_weM;
+    wire [63:0] hilo_iM;
     //write back stage
     wire [4:0] writeRegW;
-    wire [31:0] ALUoutW,readDataW,resultW;
+    wire [31:0] ALUOutW,readDataW,resultW;
     wire memToRegW,regWriteW;
+    wire hilo_weW;
+    wire [63:0] hilo_iW, hilo_oW;
 
     wire zero,overFlow;               //临时信号，用处不大
 
@@ -76,14 +83,16 @@ module dataPath(
     .forwardAE(forwardAE), 
     .forwardBE(forwardBE),
     .flushE(flushE),
+    .forwardHiloE(forwardHiloE),
     //mem stage
     .writeRegM(writeRegM),
     .regWriteM(regWriteM),
     .memToRegM(memToRegM),
-
+    .hilo_weM(hilo_weM),
     //write back stage
     .writeRegW(writeRegW),
-    .regWriteW(regWriteW)
+    .regWriteW(regWriteW),
+    .hilo_weW(hilo_weW)
     );
 
     //mux for beq
@@ -193,7 +202,7 @@ module dataPath(
     assign rsD    = instrD[25:21];
     assign rtD    = instrD[20:16];
     assign rdD    = instrD[15:11];
-    assign saD     = instrD[10:6];
+    assign saD    = instrD[10:6];
     
     //use for debug
     wire [39:0] asciiD;
@@ -203,7 +212,7 @@ module dataPath(
     );
 
     //execute stage
-    floprc #(11) regE(clk,rst,flushE,{memToRegD,memWriteD,aluSrcD,regDstD,regWriteD,ALUControlD},
+    floprc #(12) regE(clk,rst,flushE,{memToRegD,memWriteD,aluSrcD,regDstD,regWriteD,ALUControlD},
     {memToRegE,memWriteE,aluSrcE,regDstE,regWriteE,ALUControlE});
     floprc #(32) r1E(clk,rst,flushE,srcaD,srcaE);  //从寄存器读出来的数据A
     floprc #(32) r2E(clk,rst,flushE,srcbD,srcbE);  //从寄存器读出来的数据B
@@ -212,16 +221,20 @@ module dataPath(
 	floprc #(5) r5E(clk,rst,flushE,rtD,rtE);
 	floprc #(5) r6E(clk,rst,flushE,rdD,rdE);
     floprc #(5) r7E(clk,rst,flushE,saD,saE);
+    floprc #(1) r8E(clk,rst,flushE,hilo_weD,hilo_weE);
 
     mux3to1 #(32) mux_alu_src1(srcaE,resultW,ALUOutM,forwardAE,srca2E);  //选择ALU的第一个数据源
     mux3to1 #(32) mux_alu_src2(srcbE,resultW,ALUOutM,forwardBE,srcb2E);  //选择ALU的第二个数据源
     mux2to1 #(32) mux_alu_src3(signImmE,srcb2E,aluSrcE,srcb3E);
 
+    mux3to1 #(64) mux_alu_hilo(hilo_oW, hilo_iW, hilo_iM, forwardHiloE, hilo_for_aluE);  // choose the right hilo input for alu
+
     ALU alu(
         .A(srca2E),
         .B(srcb3E),
         .sa(saE),
-        .f(ALUControlE),      //ALUControl
+        .f(ALUControlE),        // ALUControl
+        .hilo(hilo_for_aluE),  // the output of hilo reg
         .res(ALUOutE),
         .overFlow(overFlow),
         .zero(zero)
@@ -230,19 +243,32 @@ module dataPath(
     mux3to1 #(5) writeReg_src(rtE,rdE,rtE,regDstE,writeRegE); // **有待更正第三个参数**
 
     //mem stage
-    flopr #(3) regM(clk,rst,{memToRegE,memWriteE,regWriteE},
-    {memToRegM,memWriteM,regWriteM});
-    flopr #(32) r1M(clk,rst,srcb2E,writeDataM);  //连接到数据存储器的写数据端口
-    flopr #(32) r2M(clk,rst,ALUOutE,ALUOutM);   //连接到数据存储器的写数据地址端口
+    flopr #(3) regM(clk,rst,{memToRegE,memWriteE,regWriteE},{memToRegM,memWriteM,regWriteM});
+    flopr #(32) r1M(clk,rst,srcb2E,writeDataM);       //连接到数据存储器的写数据端口
+    flopr #(32) r2M(clk,rst,ALUOutE[31:0],ALUOutM);   //连接到数据存储器的写数据地址端口
     flopr #(5) r3M(clk,rst,writeRegE,writeRegM); 
+    flopr #(1) r4M(clk,rst,hilo_weE,hilo_weM);
+    flopr #(64) r5M(clk,rst,ALUOutE,hilo_iM);
   
     //write back stage
-    flopr #(2) regW(clk,rst,{memToRegM,regWriteM},
-    {memToRegW,regWriteW});
+    flopr #(2) regW(clk,rst,{memToRegM,regWriteM},{memToRegW,regWriteW});
     flopr #(32) r1W(clk,rst,readDataM,readDataW);
-    flopr #(32) r2W(clk,rst,ALUOutM,ALUoutW);
-    flopr #(5) r3W(clk,rst,writeRegM,writeRegW); 
+    flopr #(32) r2W(clk,rst,ALUOutM,ALUOutW);
+    flopr #(5) r3W(clk,rst,writeRegM,writeRegW);
+    flopr #(1) r4W(clk,rst,hilo_weM, hilo_weW);
+    flopr #(64) r5W(clk,rst,hilo_iM,hilo_iW);
 
-    mux2to1 #(32) mux_res(readDataW,ALUoutW,memToRegW,resultW); //选择写回寄存器的数据来源
+    // hilo_reg
+    hilo_reg hilo_reg(
+        .clk(clk),
+        .rst(rst),
+        .we(hilo_weW),
+        .hi(hilo_iW[63:32]),
+        .lo(hilo_iW[31:0]),
+        .hi_o(hilo_oW[63:32]),
+        .lo_o(hilo_oW[31:0])
+    );
+
+    mux2to1 #(32) mux_res(readDataW,ALUOutW,memToRegW,resultW); //选择写回寄存器的数据来源
 
 endmodule
