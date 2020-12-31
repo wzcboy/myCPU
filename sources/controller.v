@@ -24,8 +24,7 @@ module controller(
     input [31:0] instrD,
 
     output [5:0] ALUControl,
-    output  jump, branch, aluSrc,memRead,memWrite,memToReg,regWrite,
-    output [1:0] regDst,
+    output branch,jump,jal,jr,bal,aluSrc,memRead,memWrite,memToReg,regWrite,regDst,
     output sign_ext,
     output hilo_we,   // hilo write enable
     output isDiv
@@ -52,8 +51,12 @@ module controller(
     main_decoder main_dec(
         .op(op),
         .funct(funct),
-        .jump(jump), 
+        .rt(rt),
         .branch(branch), 
+        .jump(jump), 
+        .jal(jal),
+        .jr(jr),
+        .bal(bal),
         .aluSrc(aluSrc),
         .memRead(memRead),
         .memWrite(memWrite),

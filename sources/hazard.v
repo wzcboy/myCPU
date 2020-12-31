@@ -26,7 +26,7 @@ module hazard(
     
     //decode stage
     input [4:0] rsD, rtD,
-    input branchD,
+    input branchD, jumpD, balD,
     output forwardAD, forwardBD,
     output stallD,
 
@@ -53,11 +53,11 @@ module hazard(
     
     //数据冒险 R型指令，前推
     assign forwardAE = ((rsE!=0) && (rsE==writeRegM) && regWriteM) ? 2'b10 : 
-                        ((rsE!=0) && (rsE==writeRegW) && regWriteW) ? 2'b01:
+                       ((rsE!=0) && (rsE==writeRegW) && regWriteW) ? 2'b01:
                         2'b00;
                     
     assign forwardBE = ((rtE!=0) && (rtE==writeRegM) && regWriteM) ? 2'b10 : 
-                        ((rtE!=0) && (rtE==writeRegW) && regWriteW) ? 2'b01:
+                       ((rtE!=0) && (rtE==writeRegW) && regWriteW) ? 2'b01:
                         2'b00;
     
     // hilo寄存器导致的数据冒险
@@ -74,12 +74,15 @@ module hazard(
     //beq前一条指令为ALU指令或者是load指令
     wire branchStall;
     assign branchStall = (branchD && regWriteE && (writeRegE==rsD || writeRegE==rtD))
-                        | (branchD && memToRegM && (writeRegM==rsD || writeRegM==rtD));
-    
+                       | (branchD && memToRegM && (writeRegM==rsD || writeRegM==rtD));
+    // branch-al instr can't flush
+    wire branchFlush;
+    assign branchFlush = (branchD & !balD); 
     // control output
-    assign stallD = (lwStall | branchStall) | stall_divE;
+    assign stallD = (lwStall | branchStall | stall_divE);
     assign stallF = stallD;
     assign stallE = stall_divE;
-    assign flushE = (lwStall | branchStall);
+
+    assign flushE = (lwStall | branchStall) | jumpD  | branchFlush;
 endmodule
 

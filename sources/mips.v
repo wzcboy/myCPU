@@ -29,8 +29,7 @@ module mips(
     );
     wire [31:0] instrD;
     wire [5:0] ALUControl;
-    wire jump, branch, aluSrc,memWrite,memToReg,regWrite;
-    wire [1:0] regDst;
+    wire branch,jump,jal,jr,bal,aluSrc,memWrite,memToReg,regWrite,regDst;
     
     wire sign_ext;
     wire hilo_we;
@@ -39,8 +38,11 @@ module mips(
     controller controller(
         .instrD(instrD),
         .ALUControl(ALUControl),
-        .jump(jump), 
         .branch(branch), 
+        .jump(jump), 
+        .jal(jal),
+        .jr(jr),
+        .bal(bal),
         .aluSrc(aluSrc),
         .memRead(memRead),
         .memWrite(memWrite),
@@ -64,8 +66,11 @@ module mips(
         .memWriteD(memWrite),
         .aluSrcD(aluSrc),
         .regDstD(regDst),
-        .branchD(branch),
-        .jumpD(jump),
+        .branchD(branch), 
+        .jumpD(jump), 
+        .jalD(jal),
+        .jrD(jr),
+        .balD(bal),
         .ALUControlD(ALUControl),
         .instrD(instrD),
         .sign_extD(sign_ext),
