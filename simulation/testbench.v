@@ -5,8 +5,6 @@ module mips_min_tb();
 	reg clock_50;
 	reg rst;
 
-	wire[31:0] writedata,dataadr;
-	wire memwrite;
 
 	initial begin
 		clock_50 = 1'b0;
@@ -16,11 +14,11 @@ module mips_min_tb();
 	initial begin
 		rst = 1;
 		#200 rst= 0;
-		#1000 $stop;
+//		#1000 $stop;
 	end
 
 	// call myCPU
-	top dut(clock_50,rst,writedata,dataadr,memwrite);
+	top dut(clock_50,rst);
 
 endmodule
 
