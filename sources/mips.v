@@ -24,16 +24,19 @@ module mips(
     input clk,rst,
     input [31:0] readDataM, instrF,
     output [31:0] pcF,
-    output [31:0] ALUOutM,writeDataM,
-    output memWriteM,memRead
+    output [31:0] ALUOutM,writeData2M,
+    output [3:0] mem_wenM
     );
     wire [31:0] instrD;
     wire [5:0] ALUControl;
-    wire branch,jump,jal,jr,bal,aluSrc,memWrite,memToReg,regWrite,regDst;
+    wire branch,jump,jal,jr,bal,aluSrc,memRead,memWrite,memToReg,regWrite,regDst;
     
-    wire sign_ext;
-    wire hilo_we;
-    wire isDiv;
+    wire sign_extD;
+    wire hilo_weD;
+    wire isDivD;
+
+    wire [5:0] opM;
+    wire [31:0] writeDataM,finalDataM;
 
     controller controller(
         .instrD(instrD),
@@ -49,9 +52,20 @@ module mips(
         .memToReg(memToReg),
         .regWrite(regWrite),
         .regDst(regDst),
-        .sign_ext(sign_ext),
-        .hilo_we(hilo_we),
-        .isDiv(isDiv)
+        .sign_ext(sign_extD),
+        .hilo_we(hilo_weD),
+        .isDiv(isDivD)
+    );
+
+    mem_control mem_ctrl(
+        .op(opM),
+        .addr(ALUOutM[1:0]),
+        .writeData(writeDataM),
+        .writeData2(writeData2M),
+        .sel(mem_wenM),
+        // read from memory
+        .readData(readDataM),
+        .finalData(finalDataM)
     );
 
     dataPath dataPath(
@@ -73,16 +87,16 @@ module mips(
         .balD(bal),
         .ALUControlD(ALUControl),
         .instrD(instrD),
-        .sign_extD(sign_ext),
-        .hilo_weD(hilo_we),
-        .isDivD(isDiv),
+        .sign_extD(sign_extD),
+        .hilo_weD(hilo_weD),
+        .isDivD(isDivD),
         //execute stage
     
         //mem stage
-        .readDataM(readDataM),
+        .opM(opM),
+        .readDataM(finalDataM),
         .ALUOutM(ALUOutM),
-        .writeDataM(writeDataM),
-        .memWriteM(memWriteM)
+        .writeDataM(writeDataM)
         //write back stage
     );
 endmodule

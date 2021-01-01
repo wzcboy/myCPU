@@ -52,11 +52,11 @@ module hazard(
     );
     
     //数据冒险 R型指令，前推
-    assign forwardAE = ((rsE!=0) && (rsE==writeRegM) && regWriteM) ? 2'b10 : 
+    assign forwardAE = ((rsE!=0) && (rsE==writeRegM) && regWriteM) ? 2'b10: 
                        ((rsE!=0) && (rsE==writeRegW) && regWriteW) ? 2'b01:
                         2'b00;
                     
-    assign forwardBE = ((rtE!=0) && (rtE==writeRegM) && regWriteM) ? 2'b10 : 
+    assign forwardBE = ((rtE!=0) && (rtE==writeRegM) && regWriteM) ? 2'b10: 
                        ((rtE!=0) && (rtE==writeRegW) && regWriteW) ? 2'b01:
                         2'b00;
     

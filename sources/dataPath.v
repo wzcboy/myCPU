@@ -18,7 +18,7 @@ module dataPath(
     // mem stage
     input [31:0] readDataM,
     output [31:0] ALUOutM,writeDataM,
-    output memWriteM
+    output [5:0] opM
     // write back stage
 
     );
@@ -39,6 +39,7 @@ module dataPath(
     wire [31:0] pc_plus8E;
     wire [1:0] forwardAE,forwardBE, forwardHiloE;
     wire [4:0] rsE,rtE,rdE,saE;
+    wire [5:0] opE;
     wire stallE, flushE;
     wire [4:0] writeRegE,writeReg2E;
     wire [31:0] signImmE;
@@ -54,7 +55,7 @@ module dataPath(
     wire stall_divE, isDivE;
     // mem stage
     wire [4:0] writeRegM;
-    wire memToRegM,regWriteM;
+    wire memToRegM,memWriteM,regWriteM;
     wire hilo_weM;
     wire [63:0] hilo_iM;
     // write back stage
@@ -217,6 +218,7 @@ module dataPath(
     flopenrc #(1) r9E(clk,rst,~stallE,flushE,isDivD,isDivE);
     flopenrc #(32) r10E(clk,rst,~stallE,flushE,pc_plus8D,pc_plus8E);
     flopenrc #(3) r11E(clk,rst,~stallE,flushE,{jalD,jrD,balD},{jalE,jrE,balE});
+    flopenrc #(6) r12E(clk,rst,~stallE,flushE,opD, opE);
 
     mux3to1 #(32) mux_alu_src1(srcaE,resultW,ALUOutM,forwardAE,srca2E);  // choose the first  source for ALU
     mux3to1 #(32) mux_alu_src2(srcbE,resultW,ALUOutM,forwardBE,srcb2E);  // choose the second source for ALU
@@ -254,11 +256,12 @@ module dataPath(
 
     //mem stage
     flopr #(3) regM(clk,rst,{memToRegE,memWriteE,regWriteE},{memToRegM,memWriteM,regWriteM});
-    flopr #(32) r1M(clk,rst,srcb2E,writeDataM);       //连接到数据存储器的写数据端口
-    flopr #(32) r2M(clk,rst,ALUOut2E,ALUOutM);        //连接到数据存储器的写数据地址端口
+    flopr #(32) r1M(clk,rst,srcb2E,writeDataM);       // write data to memory
+    flopr #(32) r2M(clk,rst,ALUOut2E,ALUOutM);        // addr for write memory
     flopr #(5) r3M(clk,rst,writeReg2E,writeRegM); 
     flopr #(1) r4M(clk,rst,hilo_weE,hilo_weM);
     flopr #(64) r5M(clk,rst,ALUOutE,hilo_iM);
+    flopr #(6) r6M(clk,rst,opE,opM);
   
     //write back stage
     flopr #(2) regW(clk,rst,{memToRegM,regWriteM},{memToRegW,regWriteW});

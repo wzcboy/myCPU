@@ -17,7 +17,7 @@
 `define EXE_SLTI_OP     6'b001010
 `define EXE_SLTIU_OP    6'b001011
 
-// jump and branch inste
+// jump and branch instr
 `define EXE_J_OP        6'b000010
 `define EXE_JAL_OP      6'b000011
 `define EXE_BEQ_OP      6'b000100
@@ -25,6 +25,15 @@
 `define EXE_BLEZ_OP     6'b000110
 `define EXE_BNE_OP      6'b000101
 
+// load and store instr
+`define EXE_LB_OP       6'b100000
+`define EXE_LBU_OP      6'b100100
+`define EXE_LH_OP       6'b100001
+`define EXE_LHU_OP      6'b100101
+`define EXE_LW_OP       6'b100011
+`define EXE_SB_OP       6'b101000
+`define EXE_SH_OP       6'b101001
+`define EXE_SW_OP       6'b101011
 
 //-----------------instr funct---------------------
 // logic instr

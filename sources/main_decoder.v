@@ -77,7 +77,13 @@ module main_decoder(
                     default:                  sigs = 11'b0000_0000_000;
                 endcase
             end
-
+            // load and store
+            `EXE_LB_OP, `EXE_LBU_OP, `EXE_LH_OP, `EXE_LHU_OP, `EXE_LW_OP: begin
+                sigs = 11'b0000_0110_110;
+            end
+            `EXE_SB_OP, `EXE_SH_OP, `EXE_SW_OP: begin
+                sigs = 11'b0000_0101_000;
+            end
             default: begin
                 sigs = 11'b0000_0000_0000;
             end
