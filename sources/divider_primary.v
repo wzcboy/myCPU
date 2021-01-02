@@ -33,6 +33,7 @@ module divider_primary(
 
     wire div_ready;
     reg start_div, signed_div; 
+    reg [31:0] opdata1_reg, opdata2_reg;
     
     // DIV FSM
     always@(*) begin
@@ -82,12 +83,32 @@ module divider_primary(
         end
     end
 
+    // when div start, opdata can't change
+    always@(*) begin
+        if(rst) begin
+            opdata1_reg <= 0;
+            opdata2_reg <= 0;
+        end 
+        else if((ALUControl_i == `ALU_DIV) && !start_div) begin
+            opdata1_reg <= opdata1_i;
+            opdata2_reg <= opdata2_i;
+        end
+        else if((ALUControl_i == `ALU_DIVU) && !start_div) begin
+            opdata1_reg <= opdata1_i;
+            opdata2_reg <= opdata2_i;
+        end
+        else begin
+            opdata1_reg <= opdata1_reg;
+            opdata2_reg <= opdata2_reg;
+        end
+    end
+
     div div(
         .clk(clk),
         .rst(rst),
         .signed_div_i(signed_div),
-        .opdata1_i(opdata1_i),
-        .opdata2_i(opdata2_i),
+        .opdata1_i(opdata1_reg),
+        .opdata2_i(opdata2_reg),
         .start_i(start_div),
         .annul_i(annul_i),
 

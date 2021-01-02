@@ -26,7 +26,7 @@ module hazard(
     
     //decode stage
     input [4:0] rsD, rtD,
-    input branchD, jumpD, balD,
+    input branchD, jumpD, jrD, balD,
     output forwardAD, forwardBD,
     output stallD,
 
@@ -71,15 +71,18 @@ module hazard(
     assign forwardAD = (rsD!=0) && (rsD==writeRegM) && regWriteM;
     assign forwardBD = (rtD!=0) && (rtD==writeRegM) && regWriteM;
 
-    //beq前一条指令为ALU指令或者是load指令
-    wire branchStall;
+    //branch and jump stall 前一条指令为ALU指令或者是load指令
+    wire branchStall, jumpStall;
     assign branchStall = (branchD && regWriteE && (writeRegE==rsD || writeRegE==rtD))
                        | (branchD && memToRegM && (writeRegM==rsD || writeRegM==rtD));
+    assign jumpStall = (jrD && regWriteE && (writeRegE==rsD))
+                     | (jrD && memToRegM && (writeRegM==rsD));                
     // branch-al instr can't flush
     wire branchFlush;
     assign branchFlush = (branchD & !balD); 
+    
     // control output
-    assign stallD = (lwStall | branchStall | stall_divE);
+    assign stallD = (lwStall | branchStall | jumpStall | stall_divE);
     assign stallF = stallD;
     assign stallE = stall_divE;
 
