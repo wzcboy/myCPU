@@ -1,7 +1,9 @@
 `timescale 1ns / 1ps
+`include "defines.vh"
 
 module dataPath(
     input clk,rst,
+    input [5:0] int,
     // fetch stage
     input [31:0] instrF,
     output [31:0] pcF,
@@ -12,11 +14,15 @@ module dataPath(
     input sign_extD,
     input hilo_weD,
     input isDivD,
+    input invalidD,
+    input cp0_weD,
     output [31:0] instrD,
     //execute stage
     
     // mem stage
-    input [31:0] readDataM,
+    output [31:0] pcM,
+    input [31:0] readDataM, bad_addrM,
+    input adelM, adesM,
     output [31:0] ALUOutM,writeDataM,
     output [5:0] opM,
     output mem_enM,
@@ -27,9 +33,11 @@ module dataPath(
     );
 
     // fetch stage
-    wire stallF;
+    wire stallF, flushF;
+    wire [7:0] exceptF;
+    wire is_in_delayslotF;
     // FD
-    wire [31:0] pc_next_FD, pc_nextbrFD, pc_plus4F, pc_plus8F,pc_branchD,pc_jumpD;
+    wire [31:0] pc_next_FD, pc_nextbrFD, pc_nextjpFD, pc_plus4F, pc_plus8F,pc_branchD,pc_jumpD;
     // decode stage
     wire [31:0] pcD, pc_plus4D, pc_plus8D;
     wire forwardAD, forwardBD,euqalD,pcSrcD;
@@ -38,6 +46,9 @@ module dataPath(
     wire stallD, flushD;
     wire [31:0] signImmD,signImmD_sl2D;
     wire [31:0] srcaD,srca2D,srcbD,srcb2D;
+    wire [7:0] exceptD;
+    wire breakD, syscallD, eretD;
+    wire is_in_delayslotD;
     // execute stage
     wire [31:0] pcE, pc_plus8E;
     wire [1:0] forwardAE,forwardBE, forwardHiloE;
@@ -56,25 +67,38 @@ module dataPath(
     wire hilo_weE;
     wire [63:0] alu_resultE, div_resultE;
     wire stall_divE, isDivE;
+    wire [7:0] exceptE;
+    wire [31:0] cp0dataE, cp0data2E;
+    wire is_in_delayslotE;
+    wire cp0_weE;
+    wire forwardcp0E;
     // mem stage
-    wire [4:0] writeRegM;
+    wire [4:0] writeRegM, rdM;
     wire memToRegM,memReadM,memWriteM,regWriteM;
     wire hilo_weM;
     wire [63:0] hilo_iM;
-    wire [31:0] pcM;
+    wire [7:0] exceptM;
+    wire is_in_delayslotM;
+    wire [31:0] newpcM, excepttypeM;
+    wire cp0_weM;
+    wire pc_trapM, flush_exceptM;
+    wire stallM, flushM;
     // write back stage
     wire [31:0] ALUOutW,readDataW;
     wire memToRegW;
     wire hilo_weW;
     wire [63:0] hilo_iW, hilo_oW;
+    wire stallW, flushW;
 
     wire zero,overFlow;               // **有待更新**
-
+    wire [31:0] count_o,compare_o,status_o,cause_o,epc_o,config_o,prid_o,badvaddr;
+    wire timer_int_o;
     
     //冒险控制
     hazard h(
      // fetch stage
     .stallF(stallF),
+    .flushF(flushF),
     // decode stage
     .rsD(rsD), 
     .rtD(rtD),
@@ -85,27 +109,37 @@ module dataPath(
     .forwardAD(forwardAD), 
     .forwardBD(forwardBD),
     .stallD(stallD),
+    .flushD(flushD),
     // excute stage
     .rsE(rsE), 
     .rtE(rtE),
+    .rdE(rdE),
     .writeRegE(writeRegE),
     .regWriteE(regWriteE),
     .memToRegE(memToRegE),
     .forwardAE(forwardAE), 
     .forwardBE(forwardBE),
-    .flushE(flushE),
     .forwardHiloE(forwardHiloE),
+    .forwardcp0E(forwardcp0E),
     .stall_divE(stall_divE),
     .stallE(stallE),
+    .flushE(flushE),
     // mem stage
     .writeRegM(writeRegM),
+    .rdM(rdM),
     .regWriteM(regWriteM),
     .memToRegM(memToRegM),
     .hilo_weM(hilo_weM),
+    .cp0_weM(cp0_weM),
+    .flush_exceptM(flush_exceptM),
+    .stallM(stallM),
+    .flushM(flushM),
     // write back stage
     .writeRegW(writeRegW),
     .regWriteW(regWriteW),
-    .hilo_weW(hilo_weW)
+    .hilo_weW(hilo_weW),
+    .stallW(stallW),
+    .flushW(flushW)
     );
 
     // mux for beq
@@ -117,11 +151,19 @@ module dataPath(
         .y(pc_nextbrFD)
     );
     // mux for jump
-    // jump=1, choose pc_next
+    // jump=1, choose pc_jumpD
     mux2to1 #(32) mux_pc_jump(
         .a(pc_jumpD),
         .b(pc_nextbrFD),
         .s(jumpD | jalD | jrD),
+        .y(pc_nextjpFD)
+    );
+
+    // mux for exception
+    mux2to1 #(32) mux_pc_exc(
+        .a(newpcM),
+        .b(pc_nextjpFD),
+        .s(pc_trapM),
         .y(pc_next_FD)
     );
 
@@ -134,16 +176,21 @@ module dataPath(
         .q(pcF)
     );
 
+    assign exceptF = (pcF[1:0] == 2'b00) ? 8'b0000_0000 : 8'b1000_0000;  // pc error
+    assign is_in_delayslotF = (jumpD | jalD | jrD | branchD);
+    
 
     // add for pc+4 and pc+8
     add_32 add_pc1(pcF, 32'h4, pc_plus4F);
     add_32 add_pc2(pcF, 32'h8, pc_plus8F);
 
     // decode stage
-    flopenr #(32) r1D(clk,rst,~stallD,pc_plus4F,pc_plus4D);    // reg for pc_plus4D
-    flopenr #(32) r2D(clk,rst,~stallD,instrF,instrD);          // reg for instructor
-    flopenr #(32) r3D(clk,rst,~stallD,pc_plus8F,pc_plus8D);    // reg for pc_plus4D
-    flopenr #(32) r4D(clk,rst,~stallD,pcF,pcD);    // reg for pc_plus4D
+    flopenrc #(32) r1D(clk,rst,~stallD,flushD,pc_plus4F,pc_plus4D);    // reg for pc_plus4D
+    flopenrc #(32) r2D(clk,rst,~stallD,flushD,instrF,instrD);          // reg for instructor
+    flopenrc #(32) r3D(clk,rst,~stallD,flushD,pc_plus8F,pc_plus8D);    // reg for pc_plus4D
+    flopenrc #(32) r4D(clk,rst,~stallD,flushD,pcF,pcD);    // reg for pc_plus4D
+    flopenrc #(1)  r5D(clk,rst,~stallD,flushD,is_in_delayslotF,is_in_delayslotD);
+    flopenrc #(8)  r6D(clk,rst,~stallD,flushD,exceptF,exceptD);
     
     // regfile
     regfile rf(
@@ -195,6 +242,10 @@ module dataPath(
     
     assign pcSrcD = branchD & euqalD;
 
+    assign syscallD = (opD == `EXE_ZERO_OP && functD == `EXE_SYSCALL);
+    assign breakD   = (opD == `EXE_ZERO_OP && functD == `EXE_BREAK);
+    assign eretD    = (instrD == `EXE_ERET);
+
     assign opD    = instrD[31:26];
     assign functD = instrD[5:0];
     assign rsD    = instrD[25:21];
@@ -212,25 +263,29 @@ module dataPath(
     //execute stage
     flopenrc #(12) regE(clk,rst,~stallE,flushE,{memToRegD,memReadD,memWriteD,aluSrcD,regDstD,regWriteD,ALUControlD},
     {memToRegE,memReadE,memWriteE,aluSrcE,regDstE,regWriteE,ALUControlE});
-    flopenrc #(32) r1E(clk,rst,~stallE,flushE,srcaD,srcaE);  
-    flopenrc #(32) r2E(clk,rst,~stallE,flushE,srcbD,srcbE); 
-    flopenrc #(32) r3E(clk,rst,~stallE,flushE,signImmD,signImmE);
-	flopenrc #(5) r4E(clk,rst,~stallE,flushE,rsD,rsE);
-	flopenrc #(5) r5E(clk,rst,~stallE,flushE,rtD,rtE);
-	flopenrc #(5) r6E(clk,rst,~stallE,flushE,rdD,rdE);
-    flopenrc #(5) r7E(clk,rst,~stallE,flushE,saD,saE);
-    flopenrc #(1) r8E(clk,rst,~stallE,flushE,hilo_weD,hilo_weE);
-    flopenrc #(1) r9E(clk,rst,~stallE,flushE,isDivD,isDivE);
+    flopenrc #(32)  r1E(clk,rst,~stallE,flushE,srcaD,srcaE);  
+    flopenrc #(32)  r2E(clk,rst,~stallE,flushE,srcbD,srcbE); 
+    flopenrc #(32)  r3E(clk,rst,~stallE,flushE,signImmD,signImmE);
+	flopenrc #(5)   r4E(clk,rst,~stallE,flushE,rsD,rsE);
+	flopenrc #(5)   r5E(clk,rst,~stallE,flushE,rtD,rtE);
+	flopenrc #(5)   r6E(clk,rst,~stallE,flushE,rdD,rdE);
+    flopenrc #(5)   r7E(clk,rst,~stallE,flushE,saD,saE);
+    flopenrc #(1)   r8E(clk,rst,~stallE,flushE,hilo_weD,hilo_weE);
+    flopenrc #(1)   r9E(clk,rst,~stallE,flushE,isDivD,isDivE);
     flopenrc #(32) r10E(clk,rst,~stallE,flushE,pc_plus8D,pc_plus8E);
-    flopenrc #(3) r11E(clk,rst,~stallE,flushE,{jalD,jrD,balD},{jalE,jrE,balE});
-    flopenrc #(6) r12E(clk,rst,~stallE,flushE,opD, opE);
+    flopenrc #(3)  r11E(clk,rst,~stallE,flushE,{jalD,jrD,balD},{jalE,jrE,balE});
+    flopenrc #(6)  r12E(clk,rst,~stallE,flushE,opD, opE);
     flopenrc #(32) r13E(clk,rst,~stallE,flushE,pcD,pcE);
+    flopenrc #(8)  r14E(clk,rst,~stallE,flushE,{exceptD[7],syscallD,breakD,eretD,invalidD,exceptD[2:0]},exceptE);
+    flopenrc #(1)  r15E(clk,rst,~stallE,flushE,is_in_delayslotD,is_in_delayslotE);
+    flopenrc #(1)  r16E(clk,rst,~stallE,flushE,cp0_weD,cp0_weE);
 
     mux3to1 #(32) mux_alu_src1(srcaE,resultW,ALUOutM,forwardAE,srca2E);  // choose the first  source for ALU
     mux3to1 #(32) mux_alu_src2(srcbE,resultW,ALUOutM,forwardBE,srcb2E);  // choose the second source for ALU
     mux2to1 #(32) mux_alu_src3(signImmE,srcb2E,aluSrcE,srcb3E);
 
     mux3to1 #(64) mux_alu_hilo(hilo_oW, hilo_iW, hilo_iM, forwardHiloE, hilo_for_aluE);  // choose the right hilo input for ALU
+    mux2to1 #(32) mux_alu_cp0(ALUOutM, cp0dataE, forwardcp0E, cp0data2E);  // choose the right cp0 data for ALU
 
     ALU alu(
         .A(srca2E),
@@ -238,6 +293,7 @@ module dataPath(
         .sa(saE),
         .f(ALUControlE),        // ALUControl
         .hilo(hilo_for_aluE),   // the output of hilo reg
+        .cp0data(cp0data2E), // the output of cp0 reg
         .res(alu_resultE),
         .overFlow(overFlow),
         .zero(zero)
@@ -245,7 +301,7 @@ module dataPath(
     
     divider_primary divider(
         .clk(clk), 
-        .rst(rst),
+        .rst(rst | flushE),
         .ALUControl_i(ALUControlE),
 	    .opdata1_i(srca2E),
 	    .opdata2_i(srcb3E),
@@ -261,25 +317,63 @@ module dataPath(
     
 
     //mem stage
-    flopr #(4) regM(clk,rst,{memToRegE,memReadE,memWriteE,regWriteE},{memToRegM,memReadM,memWriteM,regWriteM});
-    flopr #(32) r1M(clk,rst,srcb2E,writeDataM);       // write data to memory
-    flopr #(32) r2M(clk,rst,ALUOut2E,ALUOutM);        // addr for write memory
-    flopr #(5) r3M(clk,rst,writeReg2E,writeRegM); 
-    flopr #(1) r4M(clk,rst,hilo_weE,hilo_weM);
-    flopr #(64) r5M(clk,rst,ALUOutE,hilo_iM);
-    flopr #(6) r6M(clk,rst,opE,opM);
-    flopr #(32) r7M(clk,rst,pcE,pcM);
+    flopenrc #(4) regM(clk,rst,~stallM,flushM,{memToRegE,memReadE,memWriteE,regWriteE},{memToRegM,memReadM,memWriteM,regWriteM});
+    flopenrc #(32) r1M(clk,rst,~stallM,flushM,srcb2E,writeDataM);       // write data to memory
+    flopenrc #(32) r2M(clk,rst,~stallM,flushM,ALUOut2E,ALUOutM);        // addr for write memory
+    flopenrc #(5)  r3M(clk,rst,~stallM,flushM,writeReg2E,writeRegM); 
+    flopenrc #(1)  r4M(clk,rst,~stallM,flushM,hilo_weE,hilo_weM);
+    flopenrc #(64) r5M(clk,rst,~stallM,flushM,ALUOutE,hilo_iM);
+    flopenrc #(6)  r6M(clk,rst,~stallM,flushM,opE,opM);
+    flopenrc #(32) r7M(clk,rst,~stallM,flushM,pcE,pcM);
+    flopenrc #(8)  r8M(clk,rst,~stallM,flushM,{exceptE[7:3],overFlow,exceptE[1:0]},exceptM);
+    flopenrc #(5)  r9M(clk,rst,~stallM,flushM,rdE,rdM);
+    flopenrc #(1) r10M(clk,rst,~stallM,flushM,is_in_delayslotE,is_in_delayslotM);
+    flopenrc #(1) r11M(clk,rst,~stallM,flushM,cp0_weE,cp0_weM);
     
-    assign mem_enM = memReadM | memWriteM;     // memory enable
+    assign mem_enM = (memReadM | memWriteM) & ~flush_exceptM;     // memory enable !!! flush_ExceptM can't be ignored
+
+    // exception
+    exception exp(rst, exceptM, adelM, adesM, status_o, cause_o, epc_o, excepttypeM, newpcM);
+    assign pc_trapM = (excepttypeM != 32'b0);
+    assign flush_exceptM = (excepttypeM != 32'b0);
+
+    cp0_reg cp0(
+        .clk(clk),
+	    .rst(rst),
+
+	    .we_i(cp0_weM),
+	    .waddr_i(rdM),
+	    .raddr_i(rdE),
+	    .data_i(ALUOutM),
+
+	    .int_i(int),
+
+	    .excepttype_i(excepttypeM),
+	    .current_inst_addr_i(pcM),
+	    .is_in_delayslot_i(is_in_delayslotM),
+	    .bad_addr_i(bad_addrM),
+
+	    .data_o(cp0dataE),
+	    .count_o(count_o),
+	    .compare_o(compare_o),
+	    .status_o(status_o),
+	    .cause_o(cause_o),
+	    .epc_o(epc_o),
+	    .config_o(config_o),
+	    .prid_o(prid_o),
+	    .badvaddr(badvaddr),
+	    .timer_int_o(timer_int_o)
+    );
+
 
     //write back stage
-    flopr #(2) regW(clk,rst,{memToRegM,regWriteM},{memToRegW,regWriteW});
-    flopr #(32) r1W(clk,rst,readDataM,readDataW);
-    flopr #(32) r2W(clk,rst,ALUOutM,ALUOutW);
-    flopr #(5) r3W(clk,rst,writeRegM,writeRegW);
-    flopr #(1) r4W(clk,rst,hilo_weM, hilo_weW);
-    flopr #(64) r5W(clk,rst,hilo_iM,hilo_iW);
-    flopr #(32) r6W(clk,rst,pcM,pcW);
+    flopenrc #(2) regW(clk,rst,~stallW,flushW,{memToRegM,regWriteM},{memToRegW,regWriteW});
+    flopenrc #(32) r1W(clk,rst,~stallW,flushW,readDataM,readDataW);
+    flopenrc #(32) r2W(clk,rst,~stallW,flushW,ALUOutM,ALUOutW);
+    flopenrc #(5)  r3W(clk,rst,~stallW,flushW,writeRegM,writeRegW);
+    flopenrc #(1)  r4W(clk,rst,~stallW,flushW,hilo_weM, hilo_weW);
+    flopenrc #(64) r5W(clk,rst,~stallW,flushW,hilo_iM,hilo_iW);
+    flopenrc #(32) r6W(clk,rst,~stallW,flushW,pcM,pcW);
 
     // hilo_reg
     hilo_reg hilo_reg(

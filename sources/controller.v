@@ -27,10 +27,11 @@ module controller(
     output branch,jump,jal,jr,bal,aluSrc,memRead,memWrite,memToReg,regWrite,regDst,
     output sign_ext,
     output hilo_we,   // hilo write enable
-    output isDiv
+    output isDiv,
+    output invalid,
+    output cp0_we
 );
     // declare
-    wire [1:0] ALUOp;
     wire [5:0] op;
 	wire [4:0] rs,rt;
 	wire [5:0] funct;
@@ -48,10 +49,10 @@ module controller(
 
     assign isDiv = ~(|op) & ~(|(funct[5:1] ^ 5'b01101));	//opcode==0, funct==01101x
 
+    assign cp0_we = ~(|( op ^ `EXE_PRI_OP)) & ~(|(rs ^ `EXE_MTC0));   // mtc0
+
     main_decoder main_dec(
-        .op(op),
-        .funct(funct),
-        .rt(rt),
+        .instrD(instrD),
         .branch(branch), 
         .jump(jump), 
         .jal(jal),
@@ -62,12 +63,14 @@ module controller(
         .memWrite(memWrite),
         .memToReg(memToReg),
         .regWrite(regWrite),
-        .regDst(regDst)
+        .regDst(regDst),
+        .invalid(invalid)
     );
 
     alu_decoder alu_dec(
         .op(op),
         .funct(funct),
+        .rs(rs),
         .ALUControl(ALUControl)
     );
 

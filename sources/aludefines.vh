@@ -14,13 +14,13 @@
 `define ALU_SRLV            6'b00_0110
 `define ALU_SRAV            6'b00_0111
 
-//move instr
+// move instr
 `define ALU_MTHI            6'b01_1011
 `define ALU_MTLO            6'b01_1100
 `define ALU_MFHI            6'b10_0000
 `define ALU_MFLO            6'b10_0001
 
-//arithmetic instr
+// arithmetic instr
 `define ALU_ADD             6'b00_0010
 `define ALU_ADDU            6'b01_0000
 `define ALU_SUB             6'b00_0011
@@ -32,10 +32,10 @@
 `define ALU_DIV             6'b00_1110
 `define ALU_DIVU            6'b00_1100
 
-// 
+// privileged instr
+`define ALU_MTC0             6'b01_0010
+`define ALU_MFC0             6'b01_0011
 
-`define ALU_LEZ             6'b01_0010
-`define ALU_GTZ             6'b01_0011
 `define ALU_GEZ             6'b01_0100
 `define ALU_LTZ             6'b01_0101
 

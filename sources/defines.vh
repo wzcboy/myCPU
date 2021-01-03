@@ -35,6 +35,9 @@
 `define EXE_SH_OP       6'b101001
 `define EXE_SW_OP       6'b101011
 
+// privileged instr
+`define EXE_PRI_OP      6'b010000
+
 //-----------------instr funct---------------------
 // logic instr
 `define EXE_AND 		6'b100100
@@ -72,8 +75,31 @@
 `define EXE_JR          6'b001000
 `define EXE_JALR        6'b001001
 
-// ----------------instr rt--------------
+// break and syscall
+`define EXE_BREAK       6'b001101
+`define EXE_SYSCALL     6'b001100
+
+// ----------------instr rt or rs--------------
+// rt
 `define EXE_BLTZ        5'b00000
 `define EXE_BLTZAL      5'b10000
 `define EXE_BGEZ        5'b00001
 `define EXE_BGEZAL      5'b10001
+
+// rs
+`define EXE_MTC0        5'b00100
+`define EXE_MFC0        5'b00000
+
+// ----------------instr all-------------
+`define EXE_ERET        32'b01000010000000000000000000011000
+
+// ----------------exception type----------------
+`define EXC_TYPE_INT    32'h0000_0001  
+`define EXC_TYPE_ADEL   32'h0000_0004  
+`define EXC_TYPE_ADES   32'h0000_0005  
+`define EXC_TYPE_SYS    32'h0000_0008  
+`define EXC_TYPE_BP     32'h0000_0009  
+`define EXC_TYPE_RI     32'h0000_000a  
+`define EXC_TYPE_OV     32'h0000_000c
+`define EXC_TYPE_ERET   32'h0000_000e  
+`define EXC_TYPE_NOEXC  32'h0000_0000

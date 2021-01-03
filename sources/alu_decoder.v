@@ -23,6 +23,7 @@
 
 module alu_decoder(
     input [5:0] op, funct,
+    input [4:0] rs,
     output [5:0] ALUControl
 );
 
@@ -81,6 +82,14 @@ module alu_decoder(
             // load and store instr
             `EXE_LB_OP, `EXE_LBU_OP, `EXE_LH_OP, `EXE_LHU_OP, `EXE_LW_OP, `EXE_SB_OP, `EXE_SH_OP, `EXE_SW_OP: begin
                             ALUControl_reg <= `ALU_ADDU;
+            end
+            // privileged instr
+            `EXE_PRI_OP: begin
+                case (rs)
+                    `EXE_MTC0:  ALUControl_reg = `ALU_MTC0;
+                    `EXE_MFC0:  ALUControl_reg = `ALU_MFC0; 
+                    default:    ALUControl_reg = `ALU_DEFAULT;
+                endcase
             end     
             default:        ALUControl_reg = `ALU_DEFAULT;
         endcase

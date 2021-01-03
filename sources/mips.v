@@ -53,18 +53,22 @@ module mycpu_top(
     wire sign_extD;
     wire hilo_weD;
     wire isDivD;
-
+    wire invalidD;
+    wire cp0_weD;
     // memory stage
+    wire [31:0] pcM,bad_addrM;
     wire [5:0] opM;
     wire [31:0] writeDataM,readDataM,finalDataM;
     wire [31:0] ALUOutM,writeData2M;
     wire [3:0] mem_wenM;
     wire mem_enM;
+    wire adelM, adesM;
 
     // WB stage
     wire [31:0] pcW, resultW;
     wire [4:0] writeRegW;
     wire regWriteW;
+    
 
     wire [31:0] inst_sram_addr, data_sram_addr;
     wire no_dcache;
@@ -114,23 +118,31 @@ module mycpu_top(
         .regDst(regDst),
         .sign_ext(sign_extD),
         .hilo_we(hilo_weD),
-        .isDiv(isDivD)
+        .isDiv(isDivD),
+        .invalid(invalidD),
+        .cp0_we(cp0_weD)
     );
 
     mem_control mem_ctrl(
         .op(opM),
-        .addr(ALUOutM[1:0]),
+        .addr(ALUOutM),
         .writeData(writeDataM),
         .writeData2(writeData2M),
         .sel(mem_wenM),
         // read from memory
         .readData(readDataM),
-        .finalData(finalDataM)
+        .finalData(finalDataM),
+        // exception
+        .pc(pcM),
+        .bad_addr(bad_addrM),
+        .adel(adelM), 
+        .ades(adesM)
     );
 
     dataPath dataPath(
         .clk(clk),
         .rst(resetn),
+        .int(int),
         //fetch stage
         .instrF(instrF),
         .pcF(pcF),
@@ -151,14 +163,20 @@ module mycpu_top(
         .sign_extD(sign_extD),
         .hilo_weD(hilo_weD),
         .isDivD(isDivD),
+        .invalidD(invalidD),
+        .cp0_weD(cp0_weD),
         //execute stage
     
         //mem stage
+        .pcM(pcM),
         .opM(opM),
         .readDataM(finalDataM),
         .ALUOutM(ALUOutM),
         .writeDataM(writeDataM),
         .mem_enM(mem_enM),
+        .bad_addrM(bad_addrM),
+        .adelM(adelM),
+        .adesM(adesM),
         //write back stage
         .pcW(pcW),
         .resultW(resultW),

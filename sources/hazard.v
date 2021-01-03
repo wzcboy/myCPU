@@ -22,33 +22,36 @@
 
 module hazard(
     //Fetch stage
-    output stallF,
+    output stallF, flushF,
     
     //decode stage
     input [4:0] rsD, rtD,
     input branchD, jumpD, jrD, balD,
     output forwardAD, forwardBD,
-    output stallD,
+    output stallD,flushD,
 
     //excute stage
-    input [4:0] rsE, rtE,
+    input [4:0] rsE, rtE, rdE,
     input [4:0] writeRegE,
     input regWriteE,
     input memToRegE,
     input stall_divE,
     output [1:0] forwardAE, forwardBE, forwardHiloE,
-    output flushE, stallE,
+    output forwardcp0E,
+    output stallE, flushE,
 
     //mem stage
-    input [4:0] writeRegM,
+    input [4:0] writeRegM, rdM,
     input regWriteM,
     input memToRegM,
-    input hilo_weM,
-
+    input hilo_weM, cp0_weM,
+    input flush_exceptM,
+    output stallM, flushM,
     //write back stage
     input [4:0] writeRegW,
     input regWriteW,
-    input hilo_weW
+    input hilo_weW,
+    output stallW, flushW
     );
     
     //数据冒险 R型指令，前推
@@ -63,6 +66,9 @@ module hazard(
     // hilo寄存器导致的数据冒险
     assign forwardHiloE = hilo_weM ? 2'b10 : (hilo_weW ? 2'b01 : 2'b00);
 
+    // cp0 hazard forward
+    assign forwardcp0E = (cp0_weM && (rdM==rdE)) ? 1'b1 : 1'b0;
+
     //数据冒险 load指令的，前推并且阻塞一周期
     wire lwStall;
     assign lwStall = ((rsD==rtE) || (rtD==rtE)) && memToRegE;
@@ -71,21 +77,28 @@ module hazard(
     assign forwardAD = (rsD!=0) && (rsD==writeRegM) && regWriteM;
     assign forwardBD = (rtD!=0) && (rtD==writeRegM) && regWriteM;
 
-    //branch and jump stall 前一条指令为ALU指令或者是load指令
+    // branch and jump stall 前一条指令为ALU指令或者是load指令
     wire branchStall, jumpStall;
     assign branchStall = (branchD && regWriteE && (writeRegE==rsD || writeRegE==rtD))
                        | (branchD && memToRegM && (writeRegM==rsD || writeRegM==rtD));
     assign jumpStall = (jrD && regWriteE && (writeRegE==rsD))
                      | (jrD && memToRegM && (writeRegM==rsD));                
-    // branch-al instr can't flush
-    wire branchFlush;
-    assign branchFlush = (branchD & !balD); 
     
+    // data hazard stall
+    assign dataHz_stall = (lwStall | branchStall | jumpStall) & !flush_exceptM;
+    assign longest_stall = stall_divE;
     // control output
-    assign stallD = (lwStall | branchStall | jumpStall | stall_divE);
-    assign stallF = stallD;
-    assign stallE = stall_divE;
+    assign stallF = dataHz_stall | longest_stall;
+    assign stallD = dataHz_stall | longest_stall;
+    assign stallE = longest_stall;
+    assign stallM = 0;
+    assign stallW = 0;
 
-    assign flushE = (lwStall | branchStall) | jumpD  | branchFlush;
+    assign flushF = flush_exceptM;
+    assign flushD = flush_exceptM;
+    assign flushE = flush_exceptM | dataHz_stall;
+    assign flushM = flush_exceptM;
+    assign flushW = flush_exceptM;
+
 endmodule
 
