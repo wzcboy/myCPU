@@ -94,12 +94,25 @@
 `define EXE_ERET        32'b01000010000000000000000000011000
 
 // ----------------exception type----------------
-`define EXC_TYPE_INT    32'h0000_0001  
-`define EXC_TYPE_ADEL   32'h0000_0004  
-`define EXC_TYPE_ADES   32'h0000_0005  
-`define EXC_TYPE_SYS    32'h0000_0008  
-`define EXC_TYPE_BP     32'h0000_0009  
-`define EXC_TYPE_RI     32'h0000_000a  
-`define EXC_TYPE_OV     32'h0000_000c
-`define EXC_TYPE_ERET   32'h0000_000e  
-`define EXC_TYPE_NOEXC  32'h0000_0000
+`define EXC_TYPE_INT            32'h0000_0001  
+`define EXC_TYPE_INT_FORWARD    32'h0000_0002
+`define EXC_TYPE_ADEL           32'h0000_0004  
+`define EXC_TYPE_ADES           32'h0000_0005  
+`define EXC_TYPE_SYS            32'h0000_0008  
+`define EXC_TYPE_BP             32'h0000_0009  
+`define EXC_TYPE_RI             32'h0000_000a  
+`define EXC_TYPE_OV             32'h0000_000c
+`define EXC_TYPE_ERET           32'h0000_000e  
+`define EXC_TYPE_NOEXC          32'h0000_0000
+
+
+// CP0
+//CP0
+`define CP0_REG_BADVADDR    5'b01000       
+`define CP0_REG_COUNT       5'b01001        
+`define CP0_REG_COMPARE     5'b01011      
+`define CP0_REG_STATUS      5'b01100       
+`define CP0_REG_CAUSE       5'b01101       
+`define CP0_REG_EPC         5'b01110          
+`define CP0_REG_PRID        5'b01111         
+`define CP0_REG_CONFIG      5'b10000       

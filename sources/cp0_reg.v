@@ -103,6 +103,18 @@ module cp0_reg(
 					status_o[1] <= 1'b1;
 					cause_o[6:2] <= 5'b00000;
 				end
+				32'h00000002:begin 
+					if(is_in_delayslot_i == `InDelaySlot) begin
+						/* code */
+						epc_o <= current_inst_addr_i;
+						cause_o[31] <= 1'b1;
+					end else begin 
+						epc_o <= current_inst_addr_i + 4;
+						cause_o[31] <= 1'b0;
+					end
+					status_o[1] <= 1'b1;
+					cause_o[6:2] <= 5'b00000;
+				end
 				32'h00000004:begin 
 					if(is_in_delayslot_i == `InDelaySlot) begin
 						/* code */

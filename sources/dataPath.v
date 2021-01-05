@@ -4,6 +4,9 @@
 module dataPath(
     input clk,rst,
     input [5:0] int,
+    input stall_from_if,
+    input stall_from_mem,
+    output longest_stall,
     // fetch stage
     input [31:0] instrF,
     output [31:0] pcF,
@@ -26,10 +29,12 @@ module dataPath(
     output [31:0] ALUOutM,writeDataM,
     output [5:0] opM,
     output mem_enM,
+    output flush_exceptM,
     // write back stage
     output [31:0] pcW, resultW,
     output [4:0] writeRegW,
-    output regWriteW
+    output regWriteW,
+    output stallW
     );
 
     // fetch stage
@@ -81,21 +86,24 @@ module dataPath(
     wire is_in_delayslotM;
     wire [31:0] newpcM, excepttypeM;
     wire cp0_weM;
-    wire pc_trapM, flush_exceptM;
+    wire pc_trapM;
     wire stallM, flushM;
+    wire int_forward;
     // write back stage
     wire [31:0] ALUOutW,readDataW;
     wire memToRegW;
     wire hilo_weW;
     wire [63:0] hilo_iW, hilo_oW;
-    wire stallW, flushW;
+    wire flushW;
 
-    wire zero,overFlow;               // **ÓÐ´ý¸üÐÂ**
+    wire zero,overFlow;               // ALU out
     wire [31:0] count_o,compare_o,status_o,cause_o,epc_o,config_o,prid_o,badvaddr;
     wire timer_int_o;
     
-    //Ã°ÏÕ¿ØÖÆ
     hazard h(
+    .stall_from_if(stall_from_if),
+    .stall_from_mem(stall_from_mem),
+    .longest_stall(longest_stall),
      // fetch stage
     .stallF(stallF),
     .flushF(flushF),
@@ -179,7 +187,6 @@ module dataPath(
     assign exceptF = (pcF[1:0] == 2'b00) ? 8'b0000_0000 : 8'b1000_0000;  // pc error
     assign is_in_delayslotF = (jumpD | jalD | jrD | branchD);
     
-
     // add for pc+4 and pc+8
     add_32 add_pc1(pcF, 32'h4, pc_plus4F);
     add_32 add_pc2(pcF, 32'h8, pc_plus8F);
@@ -333,7 +340,10 @@ module dataPath(
     assign mem_enM = (memReadM | memWriteM) & ~flush_exceptM;     // memory enable !!! flush_ExceptM can't be ignored
 
     // exception
-    exception exp(rst, exceptM, adelM, adesM, status_o, cause_o, epc_o, excepttypeM, newpcM);
+    // int exception need to be forwarded in axi test
+    assign int_forward = (rdM == `CP0_REG_CAUSE) && ((ALUOutM[15:8] & status_o[15:8]) != 8'h00) && !status_o[1] && status_o[0];
+
+    exception exp(rst, exceptM, adelM, adesM, int_forward,status_o, cause_o, epc_o, excepttypeM, newpcM);
     assign pc_trapM = (excepttypeM != 32'b0);
     assign flush_exceptM = (excepttypeM != 32'b0);
 
@@ -386,6 +396,6 @@ module dataPath(
         .lo_o(hilo_oW[31:0])
     );
 
-    mux2to1 #(32) mux_res(readDataW,ALUOutW,memToRegW,resultW); //Ñ¡ÔñÐ´»Ø¼Ä´æÆ÷µÄÊý¾ÝÀ´Ô´
+    mux2to1 #(32) mux_res(readDataW,ALUOutW,memToRegW,resultW); //Ñ¡ï¿½ï¿½Ð´ï¿½Ø¼Ä´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ô´
 
 endmodule

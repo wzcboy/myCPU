@@ -25,6 +25,7 @@ module exception(
     // {pcError, syscall, break, eret, invalid, overflow, .., ..}
     input [7:0] except,
     input adel, ades,
+    input int_forward,
     input [31:0] cp0_status, cp0_cause, epc_o,
     output reg [31:0] excepttype, newpcM
     );
@@ -35,6 +36,9 @@ module exception(
         end else begin
             if(((cp0_cause[15:8] & cp0_status[15:8]) != 8'h00) && !cp0_status[1] && cp0_status[0]) begin
                 excepttype <= `EXC_TYPE_INT;
+                newpcM <=  32'hbfc00380;
+            end else if(int_forward) begin
+                excepttype <= `EXC_TYPE_INT_FORWARD;
                 newpcM <=  32'hbfc00380;
             end else if (except[7] | adel) begin
                 excepttype <= `EXC_TYPE_ADEL;

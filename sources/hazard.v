@@ -21,6 +21,9 @@
 
 
 module hazard(
+    input stall_from_if,
+    input stall_from_mem,
+    output longest_stall,
     //Fetch stage
     output stallF, flushF,
     
@@ -86,17 +89,18 @@ module hazard(
     
     // data hazard stall
     assign dataHz_stall = (lwStall | branchStall | jumpStall) & !flush_exceptM;
-    assign longest_stall = stall_divE;
+    assign longest_stall = stall_divE | stall_from_if | stall_from_mem;
     // control output
-    assign stallF = dataHz_stall | longest_stall;
-    assign stallD = dataHz_stall | longest_stall;
-    assign stallE = longest_stall;
-    assign stallM = 0;
-    assign stallW = 0;
+    assign stallF = (dataHz_stall | longest_stall) & ~flush_exceptM;
+    assign stallD = (dataHz_stall | longest_stall) & ~flush_exceptM;
+    assign stallE = longest_stall & ~flush_exceptM;
+    assign stallM = longest_stall & ~flush_exceptM;
+    assign stallW = longest_stall & ~flush_exceptM;
 
+    // if there exists a stage(M or W) in stall state, you can't flushE
     assign flushF = flush_exceptM;
     assign flushD = flush_exceptM;
-    assign flushE = flush_exceptM | dataHz_stall;
+    assign flushE = flush_exceptM | (dataHz_stall & ~longest_stall);
     assign flushM = flush_exceptM;
     assign flushW = flush_exceptM;
 
