@@ -3,8 +3,8 @@
 
 `define EXE_NOP         6'b000000 
 //------------------instr op---------------------
-`define EXE_ZERO_OP      6'b000000
-`define EXE_REGIMM_OP    6'b000001
+`define EXE_ZERO_OP     6'b000000
+`define EXE_REGIMM_OP   6'b000001
 // logic instr
 `define EXE_ANDI_OP		6'b001100
 `define EXE_XORI_OP		6'b001110
@@ -107,7 +107,6 @@
 
 
 // CP0
-//CP0
 `define CP0_REG_BADVADDR    5'b01000       
 `define CP0_REG_COUNT       5'b01001        
 `define CP0_REG_COMPARE     5'b01011      

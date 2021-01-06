@@ -88,6 +88,7 @@ module hazard(
                      | (jrD && memToRegM && (writeRegM==rsD));                
     
     // data hazard stall
+    wire dataHz_stall;
     assign dataHz_stall = (lwStall | branchStall | jumpStall) & !flush_exceptM;
     assign longest_stall = stall_divE | stall_from_if | stall_from_mem;
     // control output

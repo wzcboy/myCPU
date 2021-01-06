@@ -119,7 +119,7 @@ module mips(
     assign debug_wb_rf_wnum  = writeRegW;
     assign debug_wb_rf_wdata = resultW;
 
-    //inst sram to sram-like
+    // inst sram to sram-like
     i_sram_to_sram_like i_sram_to_sram_like(
         .clk(clk), .rst(rst),
         .longest_stall(longest_stall),
@@ -142,7 +142,7 @@ module mips(
         .inst_rdata(inst_rdata)
     );
 
-     //data sram to sram-like
+     // data sram to sram-like
     d_sram_to_sram_like d_sram_to_sram_like(
         .clk(clk), .rst(rst),
         .longest_stall(longest_stall),

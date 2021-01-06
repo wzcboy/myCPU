@@ -195,7 +195,7 @@ module dataPath(
     flopenrc #(32) r1D(clk,rst,~stallD,flushD,pc_plus4F,pc_plus4D);    // reg for pc_plus4D
     flopenrc #(32) r2D(clk,rst,~stallD,flushD,instrF,instrD);          // reg for instructor
     flopenrc #(32) r3D(clk,rst,~stallD,flushD,pc_plus8F,pc_plus8D);    // reg for pc_plus4D
-    flopenrc #(32) r4D(clk,rst,~stallD,flushD,pcF,pcD);    // reg for pc_plus4D
+    flopenrc #(32) r4D(clk,rst,~stallD,flushD,pcF,pcD);                // reg for pc_plus4D
     flopenrc #(1)  r5D(clk,rst,~stallD,flushD,is_in_delayslotF,is_in_delayslotD);
     flopenrc #(8)  r6D(clk,rst,~stallD,flushD,exceptF,exceptD);
     
@@ -396,6 +396,6 @@ module dataPath(
         .lo_o(hilo_oW[31:0])
     );
 
-    mux2to1 #(32) mux_res(readDataW,ALUOutW,memToRegW,resultW); //ѡ��д�ؼĴ�����������Դ
+    mux2to1 #(32) mux_res(readDataW,ALUOutW,memToRegW,resultW); // for regfile input
 
 endmodule
