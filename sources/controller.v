@@ -27,7 +27,7 @@ module controller(
     output branch,jump,jal,jr,bal,aluSrc,memRead,memWrite,memToReg,regWrite,regDst,
     output sign_ext,
     output hilo_we,   // hilo write enable
-    output isDiv,
+    output isDiv, isMul,
     output invalid,
     output cp0_we
 );
@@ -48,6 +48,7 @@ module controller(
 					   | ( ~(|(funct[5:2] ^ 4'b0100)) & funct[0])); //mthi mtlo
 
     assign isDiv = ~(|op) & ~(|(funct[5:1] ^ 5'b01101));	//opcode==0, funct==01101x
+    assign isMul = ~(|op) & ~(|(funct[5:1] ^ 5'b01100));	//opcode==0, funct==01100x
 
     assign cp0_we = ~(|( op ^ `EXE_PRI_OP)) & ~(|(rs ^ `EXE_MTC0));   // mtc0
 

@@ -61,7 +61,7 @@ module mips(
     wire branch,jump,jal,jr,bal,aluSrc,memRead,memWrite,memToReg,regWrite,regDst;
     wire sign_extD;
     wire hilo_weD;
-    wire isDivD;
+    wire isMulD, isDivD;
     wire invalidD;
     wire cp0_weD;
     // memory stage
@@ -184,6 +184,7 @@ module mips(
         .sign_ext(sign_extD),
         .hilo_we(hilo_weD),
         .isDiv(isDivD),
+        .isMul(isMulD),
         .invalid(invalidD),
         .cp0_we(cp0_weD)
     );
@@ -230,6 +231,7 @@ module mips(
         .instrD(instrD),
         .sign_extD(sign_extD),
         .hilo_weD(hilo_weD),
+        .isMulD(isMulD),
         .isDivD(isDivD),
         .invalidD(invalidD),
         .cp0_weD(cp0_weD),

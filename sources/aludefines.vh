@@ -42,6 +42,5 @@
 `define ALU_EQ              6'b01_1001
 `define ALU_NEQ             6'b01_1010
 
-`define ALU_MUL             6'b01_1101
 
 `define ALU_DEFAULT         6'b01_1111

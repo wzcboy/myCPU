@@ -59,8 +59,6 @@ module ALU(
     wire alu_subu;    
     wire alu_slt;     
     wire alu_sltu;
-    wire alu_mult;
-    wire alu_multu;
     // privileged instr
     wire alu_mtc0;
     wire alu_mfc0;
@@ -88,7 +86,6 @@ module ALU(
     wire [31:0] add_result;     // include: add,addu,sub,subu
     wire [31:0] slt_result;
     wire [31:0] sltu_result;
-    wire [63:0] mult_result;
     // privileged instr
     wire [31:0] mtc0_result;
     wire [31:0] mfc0_result;
@@ -120,8 +117,6 @@ module ALU(
     assign alu_subu  = !(f ^ `ALU_SUBU);
     assign alu_slt   = !(f ^ `ALU_SLT);
     assign alu_sltu  = !(f ^ `ALU_SLTU);
-    assign alu_mult  = !(f ^ `ALU_MULT);
-    assign alu_multu = !(f ^ `ALU_MULTU);
     // privileged instr
     assign alu_mtc0  = !(f ^ `ALU_MTC0);
     assign alu_mfc0  = !(f ^ `ALU_MFC0);
@@ -164,10 +159,6 @@ module ALU(
     assign sltu_result[31:1] = 31'b0;
     assign sltu_result[0]    = ~add_cout;
     
-    wire [31:0] multA, multB;
-    assign multA = (alu_mult & A[31]) ? (~A + 1) : A;
-    assign multB = (alu_mult & B[31]) ? (~B + 1) : B;
-    assign mult_result = (alu_mult & (A[31] ^ B[31])) ? ~(multA * multB) + 1 : multA * multB;
     // privileged instr
     assign mtc0_result = B;
     assign mfc0_result = cp0data;
@@ -196,11 +187,9 @@ module ALU(
                | ({64{alu_mflo}}  & mflo_result)
                | ({64{alu_mthi}}  & mthi_result)
                | ({64{alu_mtlo}}  & mtlo_result)
-               | ({64{alu_mult}}  & mult_result)
-               | ({64{alu_multu}} & mult_result)
                | ({64{alu_mtc0}}  & mtc0_result)
                | ({64{alu_mfc0}}  & mfc0_result) 
-               | ({64{!alu_mfhi & ! alu_mflo & !alu_mthi & !alu_mtlo & !alu_mult & !alu_multu & !alu_mtc0 & !alu_mfc0}} & {32'b0, alu_res_general});
+               | ({64{!alu_mfhi & ! alu_mflo & !alu_mthi & !alu_mtlo & !alu_mtc0 & !alu_mfc0}} & {32'b0, alu_res_general});
     
     // when the operation is add(signed) or sub(signed),
     // if carryout != add_result[31] && addA[31] and addB[31] has same symbol

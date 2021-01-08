@@ -16,6 +16,7 @@ module dataPath(
     input [5:0] ALUControlD,
     input sign_extD,
     input hilo_weD,
+    input isMulD,
     input isDivD,
     input invalidD,
     input cp0_weD,
@@ -70,7 +71,8 @@ module dataPath(
     wire [31:0] ALUOut2E;
     wire [63:0] hilo_for_aluE;
     wire hilo_weE;
-    wire [63:0] alu_resultE, div_resultE;
+    wire [63:0] alu_resultE, mul_resultE, div_resultE;
+    wire stall_mulE, isMulE;
     wire stall_divE, isDivE;
     wire [7:0] exceptE;
     wire [31:0] cp0dataE, cp0data2E;
@@ -129,6 +131,7 @@ module dataPath(
     .forwardBE(forwardBE),
     .forwardHiloE(forwardHiloE),
     .forwardcp0E(forwardcp0E),
+    .stall_mulE(stall_mulE),
     .stall_divE(stall_divE),
     .stallE(stallE),
     .flushE(flushE),
@@ -278,7 +281,7 @@ module dataPath(
 	flopenrc #(5)   r6E(clk,rst,~stallE,flushE,rdD,rdE);
     flopenrc #(5)   r7E(clk,rst,~stallE,flushE,saD,saE);
     flopenrc #(1)   r8E(clk,rst,~stallE,flushE,hilo_weD,hilo_weE);
-    flopenrc #(1)   r9E(clk,rst,~stallE,flushE,isDivD,isDivE);
+    flopenrc #(2)   r9E(clk,rst,~stallE,flushE,{isMulD,isDivD},{isMulE,isDivE});
     flopenrc #(32) r10E(clk,rst,~stallE,flushE,pc_plus8D,pc_plus8E);
     flopenrc #(3)  r11E(clk,rst,~stallE,flushE,{jalD,jrD,balD},{jalE,jrE,balE});
     flopenrc #(6)  r12E(clk,rst,~stallE,flushE,opD, opE);
@@ -306,6 +309,17 @@ module dataPath(
         .zero(zero)
     );
     
+    mult_primary mult(
+        .clk(clk),
+        .rst(rst),
+        .flush(flushE),
+        .ALUControl_i(ALUControlE),
+        .opdata1_i(srca2E),
+	    .opdata2_i(srcb3E),
+	    .result_o(mul_resultE),
+        .stall_mul(stall_mulE)
+    );
+
     divider_primary divider(
         .clk(clk), 
         .rst(rst | flushE),
@@ -319,7 +333,7 @@ module dataPath(
 
     mux2to1 #(5) wrmux1(rdE,rtE,regDstE,writeRegE);        
     mux2to1 #(5) wrmux2(5'b11111, writeRegE, jalE | balE | (jrE & (writeRegE==5'b0)), writeReg2E);  // for jal, bgezal, bltzal, jalr,write GPR[31]
-    mux2to1 #(64) wrmux3(div_resultE,alu_resultE,isDivE,ALUOutE);                                   // decide the final alu resut,considering the div
+    mux3to1 #(64) wrmux3(alu_resultE, mul_resultE, div_resultE, {isDivE, isMulE},ALUOutE);          // decide the final alu resut,considering the mul and div
     mux2to1 #(32) wrmux4(pc_plus8E, ALUOutE[31:0], jalE | jrE | balE, ALUOut2E);                    // jrE is for jalr
     
 

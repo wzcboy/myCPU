@@ -38,6 +38,7 @@ module hazard(
     input [4:0] writeRegE,
     input regWriteE,
     input memToRegE,
+    input stall_mulE,
     input stall_divE,
     output [1:0] forwardAE, forwardBE, forwardHiloE,
     output forwardcp0E,
@@ -90,7 +91,7 @@ module hazard(
     // data hazard stall
     wire dataHz_stall;
     assign dataHz_stall = (lwStall | branchStall | jumpStall) & !flush_exceptM;
-    assign longest_stall = stall_divE | stall_from_if | stall_from_mem;
+    assign longest_stall = stall_mulE | stall_divE | stall_from_if | stall_from_mem;
     // control output
     assign stallF = (dataHz_stall | longest_stall) & ~flush_exceptM;
     assign stallD = (dataHz_stall | longest_stall) & ~flush_exceptM;
