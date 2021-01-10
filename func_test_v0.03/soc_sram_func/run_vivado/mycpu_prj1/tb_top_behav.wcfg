@@ -1,0 +1,393 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wave_config>
+   <wave_state>
+   </wave_state>
+   <db_ref_list>
+      <db_ref path="tb_top_behav.wdb" id="1">
+         <top_modules>
+            <top_module name="glbl" />
+            <top_module name="tb_top" />
+         </top_modules>
+      </db_ref>
+   </db_ref_list>
+   <zoom_setting>
+      <ZoomStartTime time="89157785fs"></ZoomStartTime>
+      <ZoomEndTime time="89246422fs"></ZoomEndTime>
+      <Cursor1Time time="89280000fs"></Cursor1Time>
+   </zoom_setting>
+   <column_width_setting>
+      <NameColumnWidth column_width="195"></NameColumnWidth>
+      <ValueColumnWidth column_width="117"></ValueColumnWidth>
+   </column_width_setting>
+   <WVObjectSize size="51" />
+   <wvobject fp_name="/tb_top/resetn" type="logic">
+      <obj_property name="ElementShortName">resetn</obj_property>
+      <obj_property name="ObjectShortName">resetn</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/clk" type="logic">
+      <obj_property name="ElementShortName">clk</obj_property>
+      <obj_property name="ObjectShortName">clk</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/led" type="array">
+      <obj_property name="ElementShortName">led[15:0]</obj_property>
+      <obj_property name="ObjectShortName">led[15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/led_rg0" type="array">
+      <obj_property name="ElementShortName">led_rg0[1:0]</obj_property>
+      <obj_property name="ObjectShortName">led_rg0[1:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/led_rg1" type="array">
+      <obj_property name="ElementShortName">led_rg1[1:0]</obj_property>
+      <obj_property name="ObjectShortName">led_rg1[1:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/num_csn" type="array">
+      <obj_property name="ElementShortName">num_csn[7:0]</obj_property>
+      <obj_property name="ObjectShortName">num_csn[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/num_a_g" type="array">
+      <obj_property name="ElementShortName">num_a_g[6:0]</obj_property>
+      <obj_property name="ObjectShortName">num_a_g[6:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/switch" type="array">
+      <obj_property name="ElementShortName">switch[7:0]</obj_property>
+      <obj_property name="ObjectShortName">switch[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/btn_key_col" type="array">
+      <obj_property name="ElementShortName">btn_key_col[3:0]</obj_property>
+      <obj_property name="ObjectShortName">btn_key_col[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/btn_key_row" type="array">
+      <obj_property name="ElementShortName">btn_key_row[3:0]</obj_property>
+      <obj_property name="ObjectShortName">btn_key_row[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/btn_step" type="array">
+      <obj_property name="ElementShortName">btn_step[1:0]</obj_property>
+      <obj_property name="ObjectShortName">btn_step[1:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/soc_clk" type="logic">
+      <obj_property name="ElementShortName">soc_clk</obj_property>
+      <obj_property name="ObjectShortName">soc_clk</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/soc_lite/cpu/dataPath/pcF" type="array">
+      <obj_property name="ElementShortName">pcF[31:0]</obj_property>
+      <obj_property name="ObjectShortName">pcF[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/soc_lite/cpu/instrF" type="array">
+      <obj_property name="ElementShortName">instrF[31:0]</obj_property>
+      <obj_property name="ObjectShortName">instrF[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/soc_lite/cpu/dataPath/asciiD" type="array">
+      <obj_property name="ElementShortName">asciiD[39:0]</obj_property>
+      <obj_property name="ObjectShortName">asciiD[39:0]</obj_property>
+      <obj_property name="Radix">ASCIIRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/debug_wb_pc" type="array">
+      <obj_property name="ElementShortName">debug_wb_pc[31:0]</obj_property>
+      <obj_property name="ObjectShortName">debug_wb_pc[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/debug_wb_rf_wen" type="array">
+      <obj_property name="ElementShortName">debug_wb_rf_wen[3:0]</obj_property>
+      <obj_property name="ObjectShortName">debug_wb_rf_wen[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/debug_wb_rf_wnum" type="array">
+      <obj_property name="ElementShortName">debug_wb_rf_wnum[4:0]</obj_property>
+      <obj_property name="ObjectShortName">debug_wb_rf_wnum[4:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/debug_wb_rf_wdata" type="array">
+      <obj_property name="ElementShortName">debug_wb_rf_wdata[31:0]</obj_property>
+      <obj_property name="ObjectShortName">debug_wb_rf_wdata[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/debug_wb_rf_wdata_v" type="array">
+      <obj_property name="ElementShortName">debug_wb_rf_wdata_v[31:0]</obj_property>
+      <obj_property name="ObjectShortName">debug_wb_rf_wdata_v[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/trace_ref" type="array">
+      <obj_property name="ElementShortName">trace_ref[31:0]</obj_property>
+      <obj_property name="ObjectShortName">trace_ref[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/trace_cmp_flag" type="logic">
+      <obj_property name="ElementShortName">trace_cmp_flag</obj_property>
+      <obj_property name="ObjectShortName">trace_cmp_flag</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/debug_end" type="logic">
+      <obj_property name="ElementShortName">debug_end</obj_property>
+      <obj_property name="ObjectShortName">debug_end</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/ref_wb_pc" type="array">
+      <obj_property name="ElementShortName">ref_wb_pc[31:0]</obj_property>
+      <obj_property name="ObjectShortName">ref_wb_pc[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/ref_wb_rf_wnum" type="array">
+      <obj_property name="ElementShortName">ref_wb_rf_wnum[4:0]</obj_property>
+      <obj_property name="ObjectShortName">ref_wb_rf_wnum[4:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/ref_wb_rf_wdata_v" type="array">
+      <obj_property name="ElementShortName">ref_wb_rf_wdata_v[31:0]</obj_property>
+      <obj_property name="ObjectShortName">ref_wb_rf_wdata_v[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/debug_wb_err" type="logic">
+      <obj_property name="ElementShortName">debug_wb_err</obj_property>
+      <obj_property name="ObjectShortName">debug_wb_err</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/err_count" type="array">
+      <obj_property name="ElementShortName">err_count[7:0]</obj_property>
+      <obj_property name="ObjectShortName">err_count[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/confreg_num_reg" type="array">
+      <obj_property name="ElementShortName">confreg_num_reg[31:0]</obj_property>
+      <obj_property name="ObjectShortName">confreg_num_reg[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/confreg_num_reg_r" type="array">
+      <obj_property name="ElementShortName">confreg_num_reg_r[31:0]</obj_property>
+      <obj_property name="ObjectShortName">confreg_num_reg_r[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/uart_display" type="logic">
+      <obj_property name="ElementShortName">uart_display</obj_property>
+      <obj_property name="ObjectShortName">uart_display</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/uart_data" type="array">
+      <obj_property name="ElementShortName">uart_data[7:0]</obj_property>
+      <obj_property name="ObjectShortName">uart_data[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/global_err" type="logic">
+      <obj_property name="ElementShortName">global_err</obj_property>
+      <obj_property name="ObjectShortName">global_err</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/test_end" type="logic">
+      <obj_property name="ElementShortName">test_end</obj_property>
+      <obj_property name="ObjectShortName">test_end</obj_property>
+   </wvobject>
+   <wvobject fp_name="group1316" type="group">
+      <obj_property name="label">divider</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <wvobject fp_name="/tb_top/soc_lite/cpu/dataPath/divider/div_ready" type="logic">
+         <obj_property name="ElementShortName">div_ready</obj_property>
+         <obj_property name="ObjectShortName">div_ready</obj_property>
+         <obj_property name="CustomSignalColor">#FAAFBE</obj_property>
+         <obj_property name="UseCustomSignalColor">true</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/soc_lite/cpu/dataPath/divider/signed_div" type="logic">
+         <obj_property name="ElementShortName">signed_div</obj_property>
+         <obj_property name="ObjectShortName">signed_div</obj_property>
+         <obj_property name="CustomSignalColor">#FAAFBE</obj_property>
+         <obj_property name="UseCustomSignalColor">true</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/soc_lite/cpu/dataPath/divider/stall_div" type="logic">
+         <obj_property name="ElementShortName">stall_div</obj_property>
+         <obj_property name="ObjectShortName">stall_div</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/soc_lite/cpu/dataPath/divider/start_div" type="logic">
+         <obj_property name="ElementShortName">start_div</obj_property>
+         <obj_property name="ObjectShortName">start_div</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/soc_lite/cpu/dataPath/divider/result_o" type="array">
+         <obj_property name="ElementShortName">result_o[63:0]</obj_property>
+         <obj_property name="ObjectShortName">result_o[63:0]</obj_property>
+         <obj_property name="CustomSignalColor">#FAAFBE</obj_property>
+         <obj_property name="UseCustomSignalColor">true</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/soc_lite/cpu/dataPath/divider/opdata1_i" type="array">
+         <obj_property name="ElementShortName">opdata1_i[31:0]</obj_property>
+         <obj_property name="ObjectShortName">opdata1_i[31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/soc_lite/cpu/dataPath/divider/opdata2_i" type="array">
+         <obj_property name="ElementShortName">opdata2_i[31:0]</obj_property>
+         <obj_property name="ObjectShortName">opdata2_i[31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/soc_lite/cpu/dataPath/divider/div/temp_op1" type="array">
+         <obj_property name="ElementShortName">temp_op1[31:0]</obj_property>
+         <obj_property name="ObjectShortName">temp_op1[31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/soc_lite/cpu/dataPath/divider/div/temp_op2" type="array">
+         <obj_property name="ElementShortName">temp_op2[31:0]</obj_property>
+         <obj_property name="ObjectShortName">temp_op2[31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/soc_lite/cpu/dataPath/divider/opdata1_reg" type="array">
+         <obj_property name="ElementShortName">opdata1_reg[31:0]</obj_property>
+         <obj_property name="ObjectShortName">opdata1_reg[31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/soc_lite/cpu/dataPath/divider/opdata2_reg" type="array">
+         <obj_property name="ElementShortName">opdata2_reg[31:0]</obj_property>
+         <obj_property name="ObjectShortName">opdata2_reg[31:0]</obj_property>
+      </wvobject>
+   </wvobject>
+   <wvobject fp_name="/tb_top/soc_lite/cpu/dataPath/adelM" type="logic">
+      <obj_property name="ElementShortName">adelM</obj_property>
+      <obj_property name="ObjectShortName">adelM</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/soc_lite/cpu/dataPath/adesM" type="logic">
+      <obj_property name="ElementShortName">adesM</obj_property>
+      <obj_property name="ObjectShortName">adesM</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/soc_lite/cpu/dataPath/excepttypeM" type="array">
+      <obj_property name="ElementShortName">excepttypeM[31:0]</obj_property>
+      <obj_property name="ObjectShortName">excepttypeM[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/soc_lite/cpu/dataPath/pc_trapM" type="logic">
+      <obj_property name="ElementShortName">pc_trapM</obj_property>
+      <obj_property name="ObjectShortName">pc_trapM</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/soc_lite/cpu/dataPath/cp0dataE" type="array">
+      <obj_property name="ElementShortName">cp0dataE[31:0]</obj_property>
+      <obj_property name="ObjectShortName">cp0dataE[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/soc_lite/cpu/dataPath/forwardcp0E" type="logic">
+      <obj_property name="ElementShortName">forwardcp0E</obj_property>
+      <obj_property name="ObjectShortName">forwardcp0E</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/soc_lite/cpu/dataPath/newpcM" type="array">
+      <obj_property name="ElementShortName">newpcM[31:0]</obj_property>
+      <obj_property name="ObjectShortName">newpcM[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/soc_lite/cpu/dataPath/pc_next_FD" type="array">
+      <obj_property name="ElementShortName">pc_next_FD[31:0]</obj_property>
+      <obj_property name="ObjectShortName">pc_next_FD[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/soc_lite/cpu/dataPath/stallF" type="logic">
+      <obj_property name="ElementShortName">stallF</obj_property>
+      <obj_property name="ObjectShortName">stallF</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/soc_lite/cpu/dataPath/h/dataHz_stall" type="logic">
+      <obj_property name="ElementShortName">dataHz_stall</obj_property>
+      <obj_property name="ObjectShortName">dataHz_stall</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/soc_lite/cpu/dataPath/exceptM" type="array">
+      <obj_property name="ElementShortName">exceptM[7:0]</obj_property>
+      <obj_property name="ObjectShortName">exceptM[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/soc_lite/cpu/dataPath/invalidD" type="logic">
+      <obj_property name="ElementShortName">invalidD</obj_property>
+      <obj_property name="ObjectShortName">invalidD</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/soc_lite/cpu/dataPath/writeDataM" type="array">
+      <obj_property name="ElementShortName">writeDataM[31:0]</obj_property>
+      <obj_property name="ObjectShortName">writeDataM[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/soc_lite/cpu/dataPath/ALUOutM" type="array">
+      <obj_property name="ElementShortName">ALUOutM[31:0]</obj_property>
+      <obj_property name="ObjectShortName">ALUOutM[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="group2030" type="group">
+      <obj_property name="label">cp0</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="isExpanded"></obj_property>
+      <wvobject fp_name="/tb_top/soc_lite/cpu/dataPath/cp0/we_i" type="logic">
+         <obj_property name="ElementShortName">we_i</obj_property>
+         <obj_property name="ObjectShortName">we_i</obj_property>
+         <obj_property name="CustomSignalColor">#FAAFBE</obj_property>
+         <obj_property name="UseCustomSignalColor">true</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/soc_lite/cpu/dataPath/cp0/waddr_i" type="array">
+         <obj_property name="ElementShortName">waddr_i[4:0]</obj_property>
+         <obj_property name="ObjectShortName">waddr_i[4:0]</obj_property>
+         <obj_property name="CustomSignalColor">#FAAFBE</obj_property>
+         <obj_property name="UseCustomSignalColor">true</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/soc_lite/cpu/dataPath/cp0/raddr_i" type="array">
+         <obj_property name="ElementShortName">raddr_i[4:0]</obj_property>
+         <obj_property name="ObjectShortName">raddr_i[4:0]</obj_property>
+         <obj_property name="CustomSignalColor">#FAAFBE</obj_property>
+         <obj_property name="UseCustomSignalColor">true</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/soc_lite/cpu/dataPath/cp0/data_i" type="array">
+         <obj_property name="ElementShortName">data_i[31:0]</obj_property>
+         <obj_property name="ObjectShortName">data_i[31:0]</obj_property>
+         <obj_property name="CustomSignalColor">#FAAFBE</obj_property>
+         <obj_property name="UseCustomSignalColor">true</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/soc_lite/cpu/dataPath/cp0/int_i" type="array">
+         <obj_property name="ElementShortName">int_i[5:0]</obj_property>
+         <obj_property name="ObjectShortName">int_i[5:0]</obj_property>
+         <obj_property name="CustomSignalColor">#FAAFBE</obj_property>
+         <obj_property name="UseCustomSignalColor">true</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/soc_lite/cpu/dataPath/cp0/excepttype_i" type="array">
+         <obj_property name="ElementShortName">excepttype_i[31:0]</obj_property>
+         <obj_property name="ObjectShortName">excepttype_i[31:0]</obj_property>
+         <obj_property name="CustomSignalColor">#FAAFBE</obj_property>
+         <obj_property name="UseCustomSignalColor">true</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/soc_lite/cpu/dataPath/cp0/current_inst_addr_i" type="array">
+         <obj_property name="ElementShortName">current_inst_addr_i[31:0]</obj_property>
+         <obj_property name="ObjectShortName">current_inst_addr_i[31:0]</obj_property>
+         <obj_property name="CustomSignalColor">#FAAFBE</obj_property>
+         <obj_property name="UseCustomSignalColor">true</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/soc_lite/cpu/dataPath/cp0/compare_o" type="array">
+         <obj_property name="ElementShortName">compare_o[31:0]</obj_property>
+         <obj_property name="ObjectShortName">compare_o[31:0]</obj_property>
+         <obj_property name="CustomSignalColor">#FAAFBE</obj_property>
+         <obj_property name="UseCustomSignalColor">true</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/soc_lite/cpu/dataPath/cp0/is_in_delayslot_i" type="logic">
+         <obj_property name="ElementShortName">is_in_delayslot_i</obj_property>
+         <obj_property name="ObjectShortName">is_in_delayslot_i</obj_property>
+         <obj_property name="CustomSignalColor">#FAAFBE</obj_property>
+         <obj_property name="UseCustomSignalColor">true</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/soc_lite/cpu/dataPath/cp0/bad_addr_i" type="array">
+         <obj_property name="ElementShortName">bad_addr_i[31:0]</obj_property>
+         <obj_property name="ObjectShortName">bad_addr_i[31:0]</obj_property>
+         <obj_property name="CustomSignalColor">#FAAFBE</obj_property>
+         <obj_property name="UseCustomSignalColor">true</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/soc_lite/cpu/dataPath/cp0/data_o" type="array">
+         <obj_property name="ElementShortName">data_o[31:0]</obj_property>
+         <obj_property name="ObjectShortName">data_o[31:0]</obj_property>
+         <obj_property name="CustomSignalColor">#FAAFBE</obj_property>
+         <obj_property name="UseCustomSignalColor">true</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/soc_lite/cpu/dataPath/cp0/count_o" type="array">
+         <obj_property name="ElementShortName">count_o[31:0]</obj_property>
+         <obj_property name="ObjectShortName">count_o[31:0]</obj_property>
+         <obj_property name="CustomSignalColor">#FAAFBE</obj_property>
+         <obj_property name="UseCustomSignalColor">true</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/soc_lite/cpu/dataPath/cp0/status_o" type="array">
+         <obj_property name="ElementShortName">status_o[31:0]</obj_property>
+         <obj_property name="ObjectShortName">status_o[31:0]</obj_property>
+         <obj_property name="CustomSignalColor">#FAAFBE</obj_property>
+         <obj_property name="UseCustomSignalColor">true</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/soc_lite/cpu/dataPath/cp0/cause_o" type="array">
+         <obj_property name="ElementShortName">cause_o[31:0]</obj_property>
+         <obj_property name="ObjectShortName">cause_o[31:0]</obj_property>
+         <obj_property name="CustomSignalColor">#FAAFBE</obj_property>
+         <obj_property name="UseCustomSignalColor">true</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/soc_lite/cpu/dataPath/cp0/epc_o" type="array">
+         <obj_property name="ElementShortName">epc_o[31:0]</obj_property>
+         <obj_property name="ObjectShortName">epc_o[31:0]</obj_property>
+         <obj_property name="CustomSignalColor">#FAAFBE</obj_property>
+         <obj_property name="UseCustomSignalColor">true</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/soc_lite/cpu/dataPath/cp0/config_o" type="array">
+         <obj_property name="ElementShortName">config_o[31:0]</obj_property>
+         <obj_property name="ObjectShortName">config_o[31:0]</obj_property>
+         <obj_property name="CustomSignalColor">#FAAFBE</obj_property>
+         <obj_property name="UseCustomSignalColor">true</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/soc_lite/cpu/dataPath/cp0/prid_o" type="array">
+         <obj_property name="ElementShortName">prid_o[31:0]</obj_property>
+         <obj_property name="ObjectShortName">prid_o[31:0]</obj_property>
+         <obj_property name="CustomSignalColor">#FAAFBE</obj_property>
+         <obj_property name="UseCustomSignalColor">true</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/soc_lite/cpu/dataPath/cp0/badvaddr" type="array">
+         <obj_property name="ElementShortName">badvaddr[31:0]</obj_property>
+         <obj_property name="ObjectShortName">badvaddr[31:0]</obj_property>
+         <obj_property name="CustomSignalColor">#FAAFBE</obj_property>
+         <obj_property name="UseCustomSignalColor">true</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/soc_lite/cpu/dataPath/cp0/timer_int_o" type="logic">
+         <obj_property name="ElementShortName">timer_int_o</obj_property>
+         <obj_property name="ObjectShortName">timer_int_o</obj_property>
+         <obj_property name="CustomSignalColor">#FAAFBE</obj_property>
+         <obj_property name="UseCustomSignalColor">true</obj_property>
+      </wvobject>
+   </wvobject>
+   <wvobject fp_name="/tb_top/soc_lite/cpu/dataPath/pcM" type="array">
+      <obj_property name="ElementShortName">pcM[31:0]</obj_property>
+      <obj_property name="ObjectShortName">pcM[31:0]</obj_property>
+   </wvobject>
+</wave_config>
