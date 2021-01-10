@@ -1,0 +1,10 @@
+Vivado Simulator 2019.2
+Copyright 1986-1999, 2001-2019 Xilinx, Inc. All Rights Reserved.
+Running: C:/Xilinx/Vivado/2019.2/bin/unwrapped/win64.o/xelab.exe -wto 8de8692e6f7648c084645fde77f29b66 --incr --debug typical --relax --mt 2 -L xil_defaultlib -L blk_mem_gen_v8_4_4 -L xbip_utils_v3_0_10 -L xbip_pipe_v3_0_6 -L xbip_bram18k_v3_0_6 -L mult_gen_v12_0_16 -L unisims_ver -L unimacro_ver -L secureip -L xpm --snapshot tb_top_behav xil_defaultlib.tb_top xil_defaultlib.glbl -log elaborate.log 
+Using 2 slave threads.
+Starting static elaboration
+Pass Through NonSizing Optimizer
+ERROR: [VRFC 10-3180] cannot find port 'btn_step' on this module [C:/Users/WZC/Vivado_projects/n4ddr/perf_test_v0.01/soc_axi_perf_demo/testbench/mycpu_tb.v:85]
+ERROR: [VRFC 10-3180] cannot find port 'btn_key_row' on this module [C:/Users/WZC/Vivado_projects/n4ddr/perf_test_v0.01/soc_axi_perf_demo/testbench/mycpu_tb.v:84]
+ERROR: [VRFC 10-3180] cannot find port 'btn_key_col' on this module [C:/Users/WZC/Vivado_projects/n4ddr/perf_test_v0.01/soc_axi_perf_demo/testbench/mycpu_tb.v:83]
+ERROR: [XSIM 43-3322] Static elaboration of top level Verilog design unit(s) in library work failed.

@@ -1,0 +1,4 @@
+vhdl xil_defaultlib  \
+"../../../../mycpu.srcs/sources_1/ip/signed_mult/sim/signed_mult.vhd" \
+
+nosort
